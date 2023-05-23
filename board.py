@@ -3,6 +3,8 @@ from elements.dot import Dot
 from elements.energizer import Energizer
 import pygame
 
+from pacman import Pacman
+
 
 class Board:
     def __init__(self, image, position, structure, square_size, surface):
@@ -13,6 +15,7 @@ class Board:
         self.surface = surface
 
         self.elements = pygame.sprite.Group()
+        self.pacman = None
         self.x_size = None
         self.y_size = None
         self.map = None
@@ -22,9 +25,11 @@ class Board:
     def show(self):
         self.surface.blit(self.image, (0, 0))
         self.elements.draw(self.surface)
+        self.pacman.show(self.surface)
 
     def update(self, events):
-        pass
+        keys = pygame.key.get_pressed()
+        self.pacman.update(keys)
 
     def _load_map(self):
         x = 0
@@ -40,11 +45,11 @@ class Board:
                     line_list.append(Cell.SPACE)
                 elif char == '*':
                     line_list.append(Cell.SPACE)
-                    new_dot = Dot(self._calculate_position((x, y)))
+                    new_dot = Dot(self.calculate_position((x, y)))
                     self.elements.add(new_dot)
                 elif char == "&":
                     line_list.append(Cell.SPACE)
-                    new_energizer = Energizer(self._calculate_position((x, y)))
+                    new_energizer = Energizer(self.calculate_position((x, y)))
                     self.elements.add(new_energizer)
                 elif char == '+':
                     line_list.append(Cell.SPACE_TELEPORT)
@@ -54,6 +59,11 @@ class Board:
         self.x_size = x
         self.y_size = y
 
-    def _calculate_position(self, cell):
+        self.pacman = Pacman(self)
+
+    def calculate_position(self, cell):
         x, y = cell
-        return x * self.square_size + self.square_size / 2 + self.position[0], y * self.square_size + self.square_size / 2 + self.position[1]
+        x_offset, y_offset = self.position
+        x_position = x * self.square_size + self.square_size / 2 + x_offset
+        y_position = y * self.square_size + self.square_size / 2 + y_offset
+        return x_position, y_position
