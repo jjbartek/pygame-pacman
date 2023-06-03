@@ -3,11 +3,11 @@ import time
 import pygame
 
 from direction import Direction
-from utils.direction_utils import DirectionUtils
+from movable_entity import MovableEntity
 from utils.image_utils import ImageUtils
 
 
-class Pacman(pygame.sprite.Sprite):
+class Pacman(MovableEntity):
     _icons_loaded = False
     icons = {}
 
@@ -25,38 +25,31 @@ class Pacman(pygame.sprite.Sprite):
     DEFAULT_DIRECTION = Direction.UP
 
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__()
 
-        self.state = None
-        self.active = False
-        self.image = None
-        self.direction = self.DEFAULT_DIRECTION
-        self.cell = None
-        self.rect = None
         self._last_pacman_update = None
         self._icon_counter = 0
 
     def initialize(self, state):
         self.state = state
         self.image = Pacman.icons.get(self.DEFAULT_IMAGE)
+        self.direction = self.DEFAULT_DIRECTION
 
         self.cell = self.state.level.default_cell
         self.rect = self.image.get_rect(center=self.state.level.get_cell_position(self.cell))
         self._last_pacman_update = time.time()
 
-    def update(self, events):
-        for event in events:
-            if event.type == pygame.KEYDOWN and event.key in DirectionUtils.KEY_TO_DIRECTION_MAPPING:
-                self.direction = DirectionUtils.KEY_TO_DIRECTION_MAPPING[event.key]
-                self.active = True
+    def update(self):
+        keys_pressed = pygame.key.get_pressed()
+        for key in self.KEY_TO_DIRECTION_MAPPING.keys():
+            if keys_pressed[key]:
+                new_direction = self.KEY_TO_DIRECTION_MAPPING[key]
+                if self._can_move_at_direction(new_direction):
+                    self.direction = new_direction
                 break
 
         self._update_icon()
         self._move()
-
-    def render(self):
-        surface = self.state.level.surface
-        surface.blit(self.image, self.rect)
 
     def _update_icon(self):
         self.image = Pacman.icons.get(self._get_pacman_icon_name())
@@ -72,7 +65,13 @@ class Pacman(pygame.sprite.Sprite):
         self._icon_counter = (self._icon_counter + 1) % 2
 
     def _move(self):
-        pass
+        next_cell = self._get_next_cell(self.direction)
+        if self._can_move_to_cell(next_cell):
+            self.cell = next_cell
+            self._update_icon_position()
+
+    def _update_icon_position(self):
+        self.rect = self.image.get_rect(center=self.state.level.get_cell_position(self.cell))
 
     @classmethod
     def load_icons(cls):

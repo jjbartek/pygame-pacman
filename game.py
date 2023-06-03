@@ -25,19 +25,16 @@ class Game:
         self._terminate()
 
     def _update(self):
-        events = pygame.event.get()
-
-        self._handle_quit(events)
-        self.state.pacman.update(events)
-
-        pygame.event.pump()
+        self._handle_quit()
+        self.state.pacman.update()
 
     def _render(self):
         self.state.level.render()
         self.state.collectibles.render()
         self.state.pacman.render()
 
-    def _handle_quit(self, events):
+    def _handle_quit(self):
+        events = pygame.event.get()
         for event in events:
             key_pressed = pygame.key.get_pressed()
             if event.type == pygame.QUIT or key_pressed[pygame.K_ESCAPE]:
