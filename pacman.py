@@ -28,6 +28,7 @@ class Pacman(MovableEntity):
         super().__init__()
 
         self._last_pacman_update = None
+        self._next_direction = None
         self._icon_counter = 0
 
     def initialize(self, state):
@@ -49,9 +50,12 @@ class Pacman(MovableEntity):
         for key in self.KEY_TO_DIRECTION_MAPPING.keys():
             if keys_pressed[key]:
                 new_direction = self.KEY_TO_DIRECTION_MAPPING[key]
-                if self._can_move_at_direction(new_direction):
-                    self.direction = new_direction
+                self._next_direction = new_direction
                 break
+
+        if self._next_direction and self._can_move_at_direction(self._next_direction):
+            self.direction = self._next_direction
+            self._next_direction = None
 
     def _update_icon(self):
         self.image = Pacman.icons.get(self._get_pacman_icon_name())
