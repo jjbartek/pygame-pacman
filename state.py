@@ -13,3 +13,9 @@ class State:
         self.ghosts = GhostsManager()
         self.pacman = Pacman()
         self.screen = None
+        self.score = 0
+
+    def add_score(self, score):
+        # check if all collected
+        self.score += score
+        print(self.score)

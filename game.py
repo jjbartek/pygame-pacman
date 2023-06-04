@@ -26,6 +26,7 @@ class Game:
 
     def _update(self):
         self._handle_quit()
+        self.state.collectibles.update()
         self.state.pacman.update()
 
     def _render(self):

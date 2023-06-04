@@ -39,7 +39,12 @@ class MovableEntity(pygame.sprite.Sprite):
     def _get_next_cell(self, direction):
         if self._active is False:
             self._convert_cell_to_integers()
-        return tuple(map(sum, zip(self.cell, self.POSITION_MAPPING.get(direction.value))))
+        next_cell = tuple(map(sum, zip(self.cell, self.POSITION_MAPPING.get(direction.value))))
+        if self._get_cell_type(self.cell) is Cell.TUNNEL and not self._cell_exists(next_cell):
+            x_cells, y_cells = self.state.level.cells_per_plane
+            x, y = next_cell
+            next_cell = x % x_cells, y % y_cells
+        return next_cell
 
     def _convert_cell_to_integers(self):
         # this is necessary for starting cell - which may have decimal values
@@ -56,9 +61,12 @@ class MovableEntity(pygame.sprite.Sprite):
     def _cell_exists(self, cell):
         x, y = cell
         x_cells, y_cells = self.state.level.cells_per_plane
-        return 0 <= x <= x_cells-1 and 0 <= y <= y_cells-1
+        return 0 <= x <= x_cells - 1 and 0 <= y <= y_cells - 1
 
     def _is_cell_walkable(self, cell):
+        cell_type = self._get_cell_type(cell)
+        return cell_type is Cell.SPACE or cell_type is Cell.TUNNEL
+
+    def _get_cell_type(self, cell):
         x, y = cell
-        cell_type = self.state.level.map[y][x]
-        return cell_type is Cell.SPACE or cell_type is Cell.TELEPORT
+        return self.state.level.map[y][x]

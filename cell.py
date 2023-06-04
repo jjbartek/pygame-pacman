@@ -6,4 +6,4 @@ class Cell(Enum):
     SPACE = 2
     DOT = 3
     ENERGIZER = 4
-    TELEPORT = 5
+    TUNNEL = 5

@@ -13,7 +13,7 @@ class Level:
         "-": Cell.SPACE,
         "*": Cell.SPACE,
         "&": Cell.SPACE,
-        "+": Cell.TELEPORT
+        "+": Cell.TUNNEL
     }
 
     CHAR_COLLECTIBLE_MAP = {

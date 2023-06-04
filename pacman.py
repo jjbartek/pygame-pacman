@@ -40,6 +40,11 @@ class Pacman(MovableEntity):
         self._last_pacman_update = time.time()
 
     def update(self):
+        self._update_direction()
+        self._update_icon()
+        self._move()
+
+    def _update_direction(self):
         keys_pressed = pygame.key.get_pressed()
         for key in self.KEY_TO_DIRECTION_MAPPING.keys():
             if keys_pressed[key]:
@@ -47,9 +52,6 @@ class Pacman(MovableEntity):
                 if self._can_move_at_direction(new_direction):
                     self.direction = new_direction
                 break
-
-        self._update_icon()
-        self._move()
 
     def _update_icon(self):
         self.image = Pacman.icons.get(self._get_pacman_icon_name())
@@ -67,6 +69,7 @@ class Pacman(MovableEntity):
     def _move(self):
         next_cell = self._get_next_cell(self.direction)
         if self._can_move_to_cell(next_cell):
+            self._active = True
             self.cell = next_cell
             self._update_icon_position()
 

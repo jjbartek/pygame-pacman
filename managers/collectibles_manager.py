@@ -11,7 +11,14 @@ class CollectiblesManager:
         self.state = state
 
     def render(self):
-        self.group.draw(self.state.level.surface)
+        self.group.draw(self.state.screen)
 
     def add(self, collectible):
         self.group.add(collectible)
+
+    def update(self):
+        for collectible in self.group:
+            collision = pygame.sprite.collide_rect(collectible, self.state.pacman)
+            if collision:
+                collectible.collect(self.state)
+                collectible.kill()
