@@ -1,4 +1,5 @@
 import time
+from enum import Enum
 
 import pygame
 
@@ -23,11 +24,12 @@ class Pacman(MovableEntity):
     }
     DEFAULT_IMAGE = "pacman-whole-up"
     DEFAULT_DIRECTION = Direction.UP
+    DEFAULT_PACMAN_MOVE_TIME = 140  # milliseconds per cell movement
+    ICON_UPDATE_TIME = 100  # milliseconds after icon is updated
 
     def __init__(self):
         super().__init__()
 
-        self._last_pacman_update = None
         self._next_direction = None
         self._icon_counter = 0
 
@@ -35,10 +37,11 @@ class Pacman(MovableEntity):
         self.state = state
         self.image = Pacman.icons.get(self.DEFAULT_IMAGE)
         self.direction = self.DEFAULT_DIRECTION
+        self._speed = self.DEFAULT_PACMAN_MOVE_TIME
 
         self.cell = self.state.level.default_cell
-        self.rect = self.image.get_rect(center=self.state.level.get_cell_position(self.cell))
-        self._last_pacman_update = time.time()
+        self._update_position(self.state.level.get_cell_position(self.cell))
+        self._last_icon_update = time.time()
 
     def update(self):
         self._update_direction()
@@ -58,8 +61,13 @@ class Pacman(MovableEntity):
             self._next_direction = None
 
     def _update_icon(self):
-        self.image = Pacman.icons.get(self._get_pacman_icon_name())
-        self._update_counter()
+        if self._time_elapsed_since_icon_update() >= self.ICON_UPDATE_TIME:
+            self.image = Pacman.icons.get(self._get_pacman_icon_name())
+            self._update_counter()
+            self._last_icon_update = time.time()
+
+    def _time_elapsed_since_icon_update(self):
+        return time.time() * 1000 - self._last_icon_update * 1000
 
     def _get_pacman_icon_name(self):
         icon_type = Pacman.ICON_SUFFIX[self._icon_counter]
@@ -71,14 +79,16 @@ class Pacman(MovableEntity):
         self._icon_counter = (self._icon_counter + 1) % 2
 
     def _move(self):
-        next_cell = self._get_next_cell(self.direction)
-        if self._can_move_to_cell(next_cell):
-            self._active = True
-            self.cell = next_cell
-            self._update_icon_position()
-
-    def _update_icon_position(self):
-        self.rect = self.image.get_rect(center=self.state.level.get_cell_position(self.cell))
+        if self._moving:
+            self._slow_movement()
+        else:
+            next_cell = self._get_next_cell(self.direction)
+            if self._can_move_to_cell(next_cell):
+                self._active = True
+                self._moving = True
+                self._target_cell = next_cell
+                self._move_start_time = time.time()
+                self._slow_movement()
 
     @classmethod
     def load_icons(cls):

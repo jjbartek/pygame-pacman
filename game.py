@@ -5,7 +5,7 @@ from state import State
 
 
 class Game:
-    MAX_FPS = 8
+    MAX_FPS = 60
     GAME_ICON_NAME = "icon"
     GAME_TITLE = "PACMAN"
 
