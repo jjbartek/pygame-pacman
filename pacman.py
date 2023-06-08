@@ -56,7 +56,7 @@ class Pacman(MovableEntity):
                 self._next_direction = new_direction
                 break
 
-        if self._next_direction and self._can_move_at_direction(self._next_direction):
+        if self._next_direction and self._can_move_at_direction(self._next_direction) and not self._moving:
             self.direction = self._next_direction
             self._next_direction = None
 

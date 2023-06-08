@@ -46,7 +46,7 @@ class MovableEntity(pygame.sprite.Sprite):
     def _slow_movement(self):
         time_elapsed = self._time_elapsed_since_move_start()
         if time_elapsed <= self._speed:
-            position = self._get_distance_covered(time_elapsed)
+            position = self._get_intermediate_position(time_elapsed)
             self._update_position(position)
         else:
             end_position = self.state.level.get_cell_position(self._target_cell)
@@ -58,29 +58,53 @@ class MovableEntity(pygame.sprite.Sprite):
     def _update_position(self, position):
         self.rect = self.image.get_rect(center=position)
 
-    def _get_distance_covered(self, time_elapsed):
-        start_x, start_y = self.state.level.get_cell_position(self.cell)
-        end_x, end_y = self.state.level.get_cell_position(self._target_cell)
-        progress = round((time_elapsed / self._speed) * 100)
+    def _get_intermediate_position(self, time_elapsed):
+        progress = min(round(time_elapsed / self._speed * 100), 100)
+        distance = self._get_distance(progress)
 
-        if progress == 0:
-            return start_x, start_y
-        elif progress > 100:
-            return end_x, end_x
-
-        distance_x, distance_y = (abs((end_x - start_x) * progress / 100), abs((end_y - start_y) * progress / 100))
-
-        if start_x > end_x:
-            result_x = start_x - distance_x
+        if self._get_cell_type(self.cell) is Cell.TUNNEL:
+            if progress < 50:
+                return self._calculate_regular_position(distance)
+            else:
+                return self._calculate_tunnel_exit_position(distance)
         else:
-            result_x = start_x + distance_x
+            return self._calculate_regular_position(distance)
 
-        if start_y > end_y:
-            result_y = start_y - distance_y
-        else:
-            result_y = start_y + distance_y
+    def _calculate_regular_position(self, distance):
+        direction = self.direction
+        x, y = self.state.level.get_cell_position(self.cell)
 
-        return result_x, result_y
+        if direction is Direction.UP:
+            y -= distance
+        elif direction is Direction.DOWN:
+            y += distance
+        elif direction is Direction.LEFT:
+            x -= distance
+        elif direction is Direction.RIGHT:
+            x += distance
+
+        return x, y
+
+    def _calculate_tunnel_exit_position(self, distance):
+        direction = self.direction
+        cell_size = self.state.level.cell_size_in_pixels
+        x, y = self.state.level.get_cell_position(self._target_cell)
+
+        if direction is Direction.UP:
+            y = y + cell_size - distance
+        elif direction is Direction.DOWN:
+            y = y - cell_size + distance
+        elif direction is Direction.LEFT:
+            x = x + cell_size - distance
+        elif direction is Direction.RIGHT:
+            x = x - cell_size + distance
+
+        return x, y
+
+    def _get_distance(self, progress):
+        cell_size = self.state.level.cell_size_in_pixels
+
+        return cell_size * progress / 100
 
     def _time_elapsed_since_move_start(self):
         return time.time() * 1000 - self._move_start_time * 1000
