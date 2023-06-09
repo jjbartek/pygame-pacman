@@ -28,6 +28,7 @@ class Game:
         self._handle_quit()
         self.state.collectibles.update()
         self.state.pacman.update()
+        self.state.ghosts.update()
 
     def _render(self):
         self.state.level.render()

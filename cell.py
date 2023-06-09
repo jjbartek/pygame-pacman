@@ -4,6 +4,7 @@ from enum import Enum
 class Cell(Enum):
     WALL = 1
     SPACE = 2
-    DOT = 3
-    ENERGIZER = 4
-    TUNNEL = 5
+    SPACE_GATE = 3
+    DOT = 4
+    ENERGIZER = 5
+    TUNNEL = 6

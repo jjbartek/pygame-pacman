@@ -80,8 +80,9 @@ class Pacman(MovableEntity):
         if self._moving:
             self._slow_movement()
         else:
-            next_cell = self._get_next_cell(self.direction)
-            if self._can_move_to_cell(next_cell):
+            current_cell = self._target_cell if self._target_cell else self.cell
+            next_cell = self._get_next_cell(current_cell, self.direction)
+            if self._is_cell_walkable(next_cell):
                 self._active = True
                 self._moving = True
                 self._target_cell = next_cell
