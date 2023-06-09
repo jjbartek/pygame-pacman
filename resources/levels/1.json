@@ -13,7 +13,7 @@
     "inky": [13.5, 17],
     "clyde": [15.5, 17]
   },
-  "ghostTargetCells": {
+  "ghostDestinationCells": {
     "blinky": [26, 0],
     "pinky": [1, 0],
     "inky": [27, 35],

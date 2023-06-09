@@ -1,6 +1,4 @@
 import time
-from enum import Enum
-
 import pygame
 
 from direction import Direction
@@ -62,14 +60,14 @@ class Pacman(MovableEntity):
 
     def _update_icon(self):
         if self._time_elapsed_since_icon_update() >= self.ICON_UPDATE_TIME:
-            self.image = Pacman.icons.get(self._get_pacman_icon_name())
+            self.image = Pacman.icons.get(self._get_icon_name())
             self._update_counter()
             self._last_icon_update = time.time()
 
     def _time_elapsed_since_icon_update(self):
         return time.time() * 1000 - self._last_icon_update * 1000
 
-    def _get_pacman_icon_name(self):
+    def _get_icon_name(self):
         icon_type = Pacman.ICON_SUFFIX[self._icon_counter]
         direction_in_lowercase = self.direction.name.lower()
 

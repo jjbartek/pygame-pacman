@@ -32,6 +32,7 @@ class Game:
     def _render(self):
         self.state.level.render()
         self.state.collectibles.render()
+        self.state.ghosts.render()
         self.state.pacman.render()
 
     def _handle_quit(self):
@@ -54,6 +55,7 @@ class Game:
         self.state.collectibles.initialize(self.state)
         self.state.level.initialize(self.state)
         self.state.pacman.initialize(self.state)
+        self.state.ghosts.initialize(self.state)
 
         pygame.display.flip()
 

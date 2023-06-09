@@ -25,11 +25,11 @@ class LevelUtils:
         pacman_start_cell = level_data["pacmanStartCell"]
         cell_size_in_pixels = level_data["cellSizeInPixels"]
         ghost_home_cells = level_data["ghostHomeCells"]
-        ghost_target_cells = level_data["ghostTargetCells"]
+        ghost_destination_cells = level_data["ghostDestinationCells"]
         ghost_start_cell = level_data["ghostStartCell"]
 
         return Level(background_name, dimensions_in_pixels, structure, cells_per_plane, cell_size_in_pixels,
-                     pacman_start_cell, ghost_home_cells, ghost_target_cells, ghost_start_cell)
+                     pacman_start_cell, ghost_home_cells, ghost_destination_cells, ghost_start_cell)
 
     @classmethod
     def _get_level_data(cls, path):

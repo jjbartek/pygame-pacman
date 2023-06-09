@@ -1,5 +1,10 @@
 import pygame
 
+from ghosts.Inky import Inky
+from ghosts.blinky import Blinky
+from ghosts.clyde import Clyde
+from ghosts.pinky import Pinky
+
 
 class GhostsManager:
     def __init__(self):
@@ -10,8 +15,14 @@ class GhostsManager:
         self.group = pygame.sprite.Group()
         self.state = state
 
-    def render(self):
-        self.group.draw()
+        self.group.add(Blinky(state))
+        self.group.add(Pinky(state))
+        self.group.add(Inky(state))
+        self.group.add(Clyde(state))
 
-    def add(self, collectible):
-        self.group.add(collectible)
+    def update(self):
+        for ghost in self.group:
+            ghost.update()
+
+    def render(self):
+        self.group.draw(self.state.screen)

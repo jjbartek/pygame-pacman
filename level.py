@@ -22,7 +22,7 @@ class Level:
     }
 
     def __init__(self, background_name, dimensions_in_pixels, structure, cells_per_plane, cell_size_in_pixels,
-                 pacman_start_cell, ghost_home_cells, ghost_target_cells, ghost_start_cell):
+                 pacman_start_cell, ghost_home_cells, ghost_destination_cells, ghost_start_cell):
         self.background_name = background_name
         self.dimensions_in_pixels = dimensions_in_pixels
         self.structure = structure
@@ -30,7 +30,7 @@ class Level:
         self.cell_size_in_pixels = cell_size_in_pixels
         self.pacman_start_cell = pacman_start_cell
         self.ghost_home_cells = ghost_home_cells
-        self.ghost_target_cells = ghost_target_cells
+        self.ghost_destination_cells = ghost_destination_cells
         self.ghost_start_cell = ghost_start_cell
 
         self.state = None
