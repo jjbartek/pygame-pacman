@@ -10,14 +10,6 @@ class LevelUtils:
     PATH_TO_LEVEL_FILES = os.path.join(os.getcwd(), 'resources', 'levels')
     LEVEL_FILE_EXTENSION = "json"
 
-    CHAR_TO_CELL_TYPE_MAP = {
-        "|": "add_wall",
-        "-": "add_space",
-        "*": "add_dot",
-        "&": "add_energizer",
-        "+": "add_teleport"
-    }
-
     @classmethod
     def get_level(cls, level_id):
         return cls._from_level_id(level_id)
@@ -26,17 +18,18 @@ class LevelUtils:
     def _from_level_id(cls, level_id):
         level_data = cls._get_level_data(cls._get_level_path(level_id))
 
-        level_id = level_data["id"]
         background_name = level_data["backgroundName"]
+        dimensions_in_pixels = level_data["dimensionsInPixels"]
         structure = level_data["structure"]
         cells_per_plane = level_data["cellsPerPlane"]
-        dimensions_in_pixels = level_data["dimensionsInPixels"]
+        pacman_start_cell = level_data["pacmanStartCell"]
         cell_size_in_pixels = level_data["cellSizeInPixels"]
-        default_cell = level_data["defaultCell"]
-        offset = level_data["offset"]
+        ghost_home_cells = level_data["ghostHomeCells"]
+        ghost_target_cells = level_data["ghostTargetCells"]
+        ghost_start_cell = level_data["ghostStartCell"]
 
-        return Level(level_id, background_name, structure, cells_per_plane, dimensions_in_pixels, cell_size_in_pixels,
-                     default_cell, offset)
+        return Level(background_name, dimensions_in_pixels, structure, cells_per_plane, cell_size_in_pixels,
+                     pacman_start_cell, ghost_home_cells, ghost_target_cells, ghost_start_cell)
 
     @classmethod
     def _get_level_data(cls, path):

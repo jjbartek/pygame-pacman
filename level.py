@@ -21,16 +21,17 @@ class Level:
         "&": Energizer
     }
 
-    def __init__(self, level_id, background_name, structure, cells_per_plane, dimensions_in_pixels, cell_size_in_pixels,
-                 default_cell, offset):
-        self.id = level_id
+    def __init__(self, background_name, dimensions_in_pixels, structure, cells_per_plane, cell_size_in_pixels,
+                 pacman_start_cell, ghost_home_cells, ghost_target_cells, ghost_start_cell):
         self.background_name = background_name
+        self.dimensions_in_pixels = dimensions_in_pixels
         self.structure = structure
         self.cells_per_plane = cells_per_plane
-        self.dimensions_in_pixels = dimensions_in_pixels
         self.cell_size_in_pixels = cell_size_in_pixels
-        self.default_cell = default_cell
-        self.offset = offset
+        self.pacman_start_cell = pacman_start_cell
+        self.ghost_home_cells = ghost_home_cells
+        self.ghost_target_cells = ghost_target_cells
+        self.ghost_start_cell = ghost_start_cell
 
         self.state = None
         self.surface = None
@@ -73,17 +74,16 @@ class Level:
 
     def get_cell_position(self, cell_pos):
         x, y = cell_pos
-        x_offset, y_offset = self.offset
         cell_size = self.cell_size_in_pixels
 
-        x_position = x * cell_size + cell_size / 2 + x_offset
-        y_position = y * cell_size + cell_size / 2 + y_offset
+        x_position = x * cell_size + cell_size / 2
+        y_position = y * cell_size + cell_size / 2
 
         return x_position, y_position
 
     def _get_char_at_position(self, pos):
         x, y = pos
-        x_length = self.cells_per_plane[0]
-        pos_in_structure = y * (x_length+1) + x
+        x_length, _ = self.cells_per_plane
+        pos_in_structure = y * (x_length + 1) + x
 
         return self.structure[pos_in_structure]

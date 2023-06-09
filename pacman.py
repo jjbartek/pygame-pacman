@@ -39,7 +39,7 @@ class Pacman(MovableEntity):
         self.direction = self.DEFAULT_DIRECTION
         self._speed = self.DEFAULT_PACMAN_MOVE_TIME
 
-        self.cell = self.state.level.default_cell
+        self.cell = self.state.level.pacman_start_cell
         self._update_position(self.state.level.get_cell_position(self.cell))
         self._last_icon_update = time.time()
 
