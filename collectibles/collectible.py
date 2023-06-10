@@ -1,14 +1,13 @@
 import pygame
 
-from utils.image_utils import ImageUtils
-
 
 class Collectible(pygame.sprite.Sprite):
-    def __init__(self, image, position, score):
+    def __init__(self, image, position, score, cell):
         pygame.sprite.Sprite.__init__(self)
 
         self.image = image
         self.position = position
+        self.cell = cell
         self.score = score
         self.rect = self.image.get_rect(center=position)
 
@@ -18,3 +17,6 @@ class Collectible(pygame.sprite.Sprite):
 
     def update(self):
         pass
+
+    def collided(self, cell):
+        return self.cell == cell

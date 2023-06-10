@@ -70,7 +70,7 @@ class Level:
 
     def _add_collectible_at_cell_position(self, collectible_class, cell_pos):
         real_position = self.get_cell_position(cell_pos)
-        collectible = collectible_class(real_position)
+        collectible = collectible_class(real_position, cell_pos)
         self.state.collectibles.add(collectible)
 
     def get_cell_position(self, cell_pos):

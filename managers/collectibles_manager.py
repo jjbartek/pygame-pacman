@@ -18,8 +18,7 @@ class CollectiblesManager:
 
     def update(self):
         for collectible in self.group:
-            collision = pygame.sprite.collide_rect(collectible, self.state.pacman)
-            if collision:
+            if collectible.collided(self.state.pacman.cell):
                 collectible.collect(self.state)
             else:
                 collectible.update()
