@@ -40,7 +40,7 @@ class Level:
         self._initialized = False
 
     def initialize(self, state):
-        if self._initialized is True:
+        if self._initialized:
             return
 
         self.state = state

@@ -64,6 +64,11 @@ class Pacman(MovableEntity):
             self._update_counter()
             self._last_icon_update = time.time()
 
+    def _can_move_at_direction(self, direction):
+        current_cell = self._target_cell if self._target_cell else self.cell
+        next_cell = self._get_next_cell(current_cell, direction)
+        return self._is_cell_walkable(next_cell)
+
     def _time_elapsed_since_icon_update(self):
         return time.time() * 1000 - self._last_icon_update * 1000
 
@@ -78,7 +83,7 @@ class Pacman(MovableEntity):
 
     def _move(self):
         if self._moving:
-            self._slow_movement()
+            self._slow_movement(self._speed)
         else:
             current_cell = self._target_cell if self._target_cell else self.cell
             next_cell = self._get_next_cell(current_cell, self.direction)
@@ -87,10 +92,10 @@ class Pacman(MovableEntity):
                 self._moving = True
                 self._target_cell = next_cell
                 self._move_start_time = time.time()
-                self._slow_movement()
+                self._slow_movement(self._speed)
 
     @classmethod
     def load_icons(cls):
-        if cls._icons_loaded is False:
+        if not cls._icons_loaded:
             for icon in cls.ICONS_LIST:
                 cls.icons[icon] = ImageUtils.get(icon)
