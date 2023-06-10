@@ -7,7 +7,6 @@ from utils.image_utils import ImageUtils
 
 
 class Ghost(MovableEntity):
-    images = {}
     DEFAULT_GHOST_MOVE_TIME = 160
     DEFAULT_DIRECTION = Direction.UP
     NO_MOVE_UP_CELLS = [
@@ -40,7 +39,7 @@ class Ghost(MovableEntity):
         self.cell = self.start_cell
         self.direction = self.DEFAULT_DIRECTION
         self.destined_cell = self.default_destination_cell
-        self.image = self.get_image(self._get_icon_name())
+        self.image = ImageUtils.get(self._get_icon_name())
         self._speed = self.DEFAULT_GHOST_MOVE_TIME
         self._next_cell = None
         self._next_direction = None
@@ -50,7 +49,7 @@ class Ghost(MovableEntity):
     def update(self):
         if self._active:
             self._move()
-            self.image = self.get_image(self._get_icon_name())
+            self.image = ImageUtils.get(self._get_icon_name())
 
     def _move(self):
         speed = self._speed
@@ -104,10 +103,3 @@ class Ghost(MovableEntity):
         direction_in_lowercase = self.direction.name.lower()
 
         return f"ghost-{self.name}-{direction_in_lowercase}"
-
-    @classmethod
-    def get_image(cls, name):
-        if name not in cls.images:
-            cls.images[name] = ImageUtils.get(name)
-
-        return cls.images[name]

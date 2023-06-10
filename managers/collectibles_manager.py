@@ -21,4 +21,5 @@ class CollectiblesManager:
             collision = pygame.sprite.collide_rect(collectible, self.state.pacman)
             if collision:
                 collectible.collect(self.state)
-                collectible.kill()
+            else:
+                collectible.update()

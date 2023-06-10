@@ -33,7 +33,7 @@ class Pacman(MovableEntity):
 
     def initialize(self, state):
         self.state = state
-        self.image = Pacman.icons.get(self.DEFAULT_IMAGE)
+        self.image = ImageUtils.get(self.DEFAULT_IMAGE)
         self.direction = self.DEFAULT_DIRECTION
         self._speed = self.DEFAULT_PACMAN_MOVE_TIME
 
@@ -60,7 +60,7 @@ class Pacman(MovableEntity):
 
     def _update_icon(self):
         if self._time_elapsed_since_icon_update() >= self.ICON_UPDATE_TIME:
-            self.image = Pacman.icons.get(self._get_icon_name())
+            self.image = ImageUtils.get(self._get_icon_name())
             self._update_counter()
             self._last_icon_update = time.time()
 
@@ -98,4 +98,4 @@ class Pacman(MovableEntity):
     def load_icons(cls):
         if not cls._icons_loaded:
             for icon in cls.ICONS_LIST:
-                cls.icons[icon] = ImageUtils.get(icon)
+                ImageUtils.get(icon)
