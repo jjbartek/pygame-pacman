@@ -1,5 +1,6 @@
 import pygame
 
+from game_info import GameInfo
 from utils.image_utils import ImageUtils
 from state import State
 
@@ -11,6 +12,7 @@ class Game:
 
     def __init__(self):
         self.state = None
+        self.game_info = None
         self._clock = None
 
     def run(self):
@@ -26,6 +28,7 @@ class Game:
 
     def _update(self):
         self._handle_quit()
+        self.state.update()
         self.state.collectibles.update()
         self.state.pacman.update()
         self.state.ghosts.update()
@@ -35,6 +38,7 @@ class Game:
         self.state.collectibles.render()
         self.state.ghosts.render()
         self.state.pacman.render()
+        self.game_info.render()
 
     def _handle_quit(self):
         events = pygame.event.get()
@@ -57,6 +61,8 @@ class Game:
         self.state.level.initialize(self.state)
         self.state.pacman.initialize(self.state)
         self.state.ghosts.initialize(self.state)
+
+        self.game_info = GameInfo(self.state)
 
         pygame.display.flip()
 

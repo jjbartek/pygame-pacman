@@ -37,3 +37,9 @@ class GhostsManager:
 
     def render(self):
         self.group.draw(self.state.screen)
+
+    def reset(self):
+        for ghost in self.group:
+            ghost.reset()
+
+        self.blinky.activate()

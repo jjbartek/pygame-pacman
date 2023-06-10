@@ -39,6 +39,13 @@ class MovableEntity(pygame.sprite.Sprite):
     def render(self):
         self.state.screen.blit(self.image, self.rect)
 
+    def reset(self):
+        self._active = False
+        self._moving = False
+        self._move_start_time = None
+        self._last_icon_update = None
+        self._target_cell = None
+
     def _move(self):
         pass
 

@@ -47,9 +47,26 @@ class Ghost(MovableEntity):
         self._update_position(self.state.level.get_cell_position(self.cell))
 
     def update(self):
-        if self._active:
+        if self._active and not self.state.freeze:
+            self._detect_collision()
             self._move()
             self.image = ImageUtils.get(self._get_icon_name())
+
+    def reset(self):
+        MovableEntity.reset(self)
+        self.cell = self.start_cell
+        self.direction = self.DEFAULT_DIRECTION
+        self.destined_cell = self.default_destination_cell
+        self.image = ImageUtils.get(self._get_icon_name())
+        self._speed = self.DEFAULT_GHOST_MOVE_TIME
+        self._next_cell = None
+        self._next_direction = None
+
+        self._update_position(self.state.level.get_cell_position(self.cell))
+
+    def _detect_collision(self):
+        if self.cell == self.state.pacman.cell:
+            self.state.pacman_dead()
 
     def _move(self):
         speed = self._speed

@@ -4,6 +4,7 @@ import pygame
 from direction import Direction
 from movable_entity import MovableEntity
 from utils.image_utils import ImageUtils
+from utils.time_utils import TimeUtils
 
 
 class Pacman(MovableEntity):
@@ -24,27 +25,35 @@ class Pacman(MovableEntity):
     DEFAULT_DIRECTION = Direction.UP
     DEFAULT_PACMAN_MOVE_TIME = 140  # milliseconds per cell movement
     ICON_UPDATE_TIME = 100  # milliseconds after icon is updated
+    DEFAULT_LIVES = 3
 
     def __init__(self):
         super().__init__()
 
         self._next_direction = None
         self._icon_counter = 0
+        self.lives = self.DEFAULT_LIVES
 
     def initialize(self, state):
         self.state = state
+        self.reset()
+
+    def reset(self):
+        MovableEntity.reset(self)
         self.image = ImageUtils.get(self.DEFAULT_IMAGE)
         self.direction = self.DEFAULT_DIRECTION
         self._speed = self.DEFAULT_PACMAN_MOVE_TIME
 
-        self.cell = self.state.level.pacman_start_cell
+        self.cell = tuple(self.state.level.pacman_start_cell)
         self._update_position(self.state.level.get_cell_position(self.cell))
         self._last_icon_update = time.time()
 
     def update(self):
-        self._update_direction()
-        self._update_icon()
-        self._move()
+        if not self.state.freeze:
+            print(self.state.freeze)
+            self._update_direction()
+            self._update_icon()
+            self._move()
 
     def _update_direction(self):
         keys_pressed = pygame.key.get_pressed()
@@ -59,7 +68,7 @@ class Pacman(MovableEntity):
             self._next_direction = None
 
     def _update_icon(self):
-        if self._time_elapsed_since_icon_update() >= self.ICON_UPDATE_TIME:
+        if TimeUtils.time_elapsed_since(self._last_icon_update) >= self.ICON_UPDATE_TIME:
             self.image = ImageUtils.get(self._get_icon_name())
             self._update_counter()
             self._last_icon_update = time.time()
@@ -68,9 +77,6 @@ class Pacman(MovableEntity):
         current_cell = self._target_cell if self._target_cell else self.cell
         next_cell = self._get_next_cell(current_cell, direction)
         return self._is_cell_walkable(next_cell)
-
-    def _time_elapsed_since_icon_update(self):
-        return time.time() * 1000 - self._last_icon_update * 1000
 
     def _get_icon_name(self):
         icon_type = Pacman.ICON_SUFFIX[self._icon_counter]

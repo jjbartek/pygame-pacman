@@ -2,6 +2,7 @@ import time
 
 from collectibles.collectible import Collectible
 from utils.image_utils import ImageUtils
+from utils.time_utils import TimeUtils
 
 
 class Energizer(Collectible):
@@ -16,13 +17,10 @@ class Energizer(Collectible):
         self._last_icon_update = time.time()
 
     def update(self):
-        if self._time_elapsed_since_update() >= self.UPDATE_TIME:
+        if TimeUtils.time_elapsed_since(self._last_icon_update) >= self.UPDATE_TIME:
             self.image = self._get_next_icon()
             self._last_icon_update = time.time()
 
     def _get_next_icon(self):
         self._icon_counter = (self._icon_counter + 1) % len(self.ALL_ICONS)
         return ImageUtils.get(self.ALL_ICONS[self._icon_counter])
-
-    def _time_elapsed_since_update(self):
-        return time.time() * 1000 - self._last_icon_update * 1000
