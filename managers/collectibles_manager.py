@@ -1,24 +1,31 @@
 import pygame
 
+from cell_map import CellMap
+
 
 class CollectiblesManager:
-    def __init__(self):
-        self.group = None
-        self.state = None
-
-    def initialize(self, state):
+    def __init__(self, board):
         self.group = pygame.sprite.Group()
-        self.state = state
+        self.board = board
 
-    def render(self):
-        self.group.draw(self.state.screen)
+        self._load()
+
+    def render(self, screen):
+        self.group.draw(screen)
 
     def add(self, collectible):
         self.group.add(collectible)
 
     def update(self):
         for collectible in self.group:
-            if collectible.collided(self.state.pacman.cell):
-                collectible.collect(self.state)
-            else:
+            if collectible.collided(self.board.pacman.cell):
+                collectible.collect(self.board)
+            elif not self.board.freeze:
                 collectible.update()
+
+    def _load(self):
+        all_collectibles = CellMap.get_instance().collectibles
+        for collectible_type in all_collectibles:
+            for cell in all_collectibles[collectible_type]:
+                position = CellMap.get_cell_position(cell)
+                self.add(collectible_type(position, cell))

@@ -1,23 +1,29 @@
 import pygame
 
 from game_info import GameInfo
-from utils.image_utils import ImageUtils
-from state import State
+from utils.file_utils import FileUtils
+from board import Board
 
 
 class Game:
     MAX_FPS = 60
     GAME_ICON_NAME = "icon"
     GAME_TITLE = "PACMAN"
+    DIMENSIONS = (560, 720)
 
     def __init__(self):
-        self.state = None
-        self.game_info = None
-        self._clock = None
+        pygame.init()
+
+        self._clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode(self.DIMENSIONS)
+        self.is_running = True
+        self.board = Board()
+
+        self._initialize_screen()
+        self.board.start_game()  # move to update when chosen in menu
 
     def run(self):
-        self._initialize()
-        while self.state.is_running:
+        while self.is_running:
             self._update()
             self._render()
 
@@ -28,51 +34,24 @@ class Game:
 
     def _update(self):
         self._handle_quit()
-        self.state.update()
-        self.state.collectibles.update()
-        self.state.pacman.update()
-        self.state.ghosts.update()
+        self.board.update()
 
     def _render(self):
-        self.state.level.render()
-        self.state.collectibles.render()
-        self.state.ghosts.render()
-        self.state.pacman.render()
-        self.game_info.render()
+        self.board.render(self.screen)
 
     def _handle_quit(self):
         events = pygame.event.get()
         for event in events:
             key_pressed = pygame.key.get_pressed()
             if event.type == pygame.QUIT or key_pressed[pygame.K_ESCAPE]:
-                self.state.is_running = False
-
-    def _initialize(self):
-        pygame.init()
-
-        self._clock = pygame.time.Clock()
-        self.state = State()
-        self.state.is_running = True
-
-        self._initialize_screen()
-        self.state.pacman.load_icons()
-
-        self.state.collectibles.initialize(self.state)
-        self.state.level.initialize(self.state)
-        self.state.pacman.initialize(self.state)
-        self.state.ghosts.initialize(self.state)
-
-        self.game_info = GameInfo(self.state)
-
-        pygame.display.flip()
+                self.is_running = False
 
     def _initialize_screen(self):
-        dimensions = self.state.level.dimensions_in_pixels
-        self.state.screen = pygame.display.set_mode(dimensions)
-        icon = ImageUtils.get(self.GAME_ICON_NAME)
+        icon = FileUtils.get_image(self.GAME_ICON_NAME)
 
         pygame.display.set_caption(self.GAME_TITLE)
         pygame.display.set_icon(icon)
+        pygame.display.flip()
 
     @staticmethod
     def _terminate():

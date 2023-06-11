@@ -1,7 +1,7 @@
 import time
 
 from collectibles.collectible import Collectible
-from utils.image_utils import ImageUtils
+from utils.file_utils import FileUtils
 from utils.time_utils import TimeUtils
 
 
@@ -12,7 +12,7 @@ class Energizer(Collectible):
     UPDATE_TIME = 200
 
     def __init__(self, position, cell):
-        super().__init__(ImageUtils.get(self.ICON_NAME), position, Energizer.POINTS, cell)
+        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Energizer.POINTS, cell)
         self._icon_counter = 0
         self._last_icon_update = time.time()
 
@@ -23,4 +23,4 @@ class Energizer(Collectible):
 
     def _get_next_icon(self):
         self._icon_counter = (self._icon_counter + 1) % len(self.ALL_ICONS)
-        return ImageUtils.get(self.ALL_ICONS[self._icon_counter])
+        return FileUtils.get_image(self.ALL_ICONS[self._icon_counter])

@@ -1,5 +1,5 @@
 from collectibles.collectible import Collectible
-from utils.image_utils import ImageUtils
+from utils.file_utils import FileUtils
 
 
 class Cherry(Collectible):
@@ -7,5 +7,5 @@ class Cherry(Collectible):
     POINTS = 100
 
     def __init__(self, position, cell):
-        super().__init__(ImageUtils.get(self.ICON_NAME), position, Cherry.POINTS, cell)
+        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Cherry.POINTS, cell)
 

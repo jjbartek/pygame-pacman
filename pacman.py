@@ -1,9 +1,10 @@
 import time
 import pygame
 
+from cell_map import CellMap
 from direction import Direction
 from movable_entity import MovableEntity
-from utils.image_utils import ImageUtils
+from utils.file_utils import FileUtils
 from utils.time_utils import TimeUtils
 
 
@@ -23,34 +24,34 @@ class Pacman(MovableEntity):
     }
     DEFAULT_IMAGE = "pacman-whole-up"
     DEFAULT_DIRECTION = Direction.UP
+    START_CELL = (13.5, 26)
     DEFAULT_PACMAN_MOVE_TIME = 140  # milliseconds per cell movement
     ICON_UPDATE_TIME = 100  # milliseconds after icon is updated
     DEFAULT_LIVES = 3
 
-    def __init__(self):
+    def __init__(self, board):
         super().__init__()
+        self._load_icons()
 
         self._next_direction = None
         self._icon_counter = 0
         self.lives = self.DEFAULT_LIVES
+        self.board = board
 
-    def initialize(self, state):
-        self.state = state
         self.reset()
 
     def reset(self):
-        MovableEntity.reset(self)
-        self.image = ImageUtils.get(self.DEFAULT_IMAGE)
+        super().reset()
+        self.image = FileUtils.get_image(self.DEFAULT_IMAGE)
         self.direction = self.DEFAULT_DIRECTION
         self._speed = self.DEFAULT_PACMAN_MOVE_TIME
 
-        self.cell = tuple(self.state.level.pacman_start_cell)
-        self._update_position(self.state.level.get_cell_position(self.cell))
+        self.cell = self.START_CELL
+        self._update_position(CellMap.get_cell_position(self.cell))
         self._last_icon_update = time.time()
 
     def update(self):
-        if not self.state.freeze:
-            print(self.state.freeze)
+        if not self.board.freeze:
             self._update_direction()
             self._update_icon()
             self._move()
@@ -68,15 +69,15 @@ class Pacman(MovableEntity):
             self._next_direction = None
 
     def _update_icon(self):
-        if TimeUtils.time_elapsed_since(self._last_icon_update) >= self.ICON_UPDATE_TIME:
-            self.image = ImageUtils.get(self._get_icon_name())
+        if self._active and TimeUtils.time_elapsed_since(self._last_icon_update) >= self.ICON_UPDATE_TIME:
+            self.image = FileUtils.get_image(self._get_icon_name())
             self._update_counter()
             self._last_icon_update = time.time()
 
     def _can_move_at_direction(self, direction):
         current_cell = self._target_cell if self._target_cell else self.cell
-        next_cell = self._get_next_cell(current_cell, direction)
-        return self._is_cell_walkable(next_cell)
+        next_cell = CellMap.get_instance().get_next_cell(current_cell, direction)
+        return CellMap.get_instance().is_cell_walkable(next_cell)
 
     def _get_icon_name(self):
         icon_type = Pacman.ICON_SUFFIX[self._icon_counter]
@@ -92,8 +93,8 @@ class Pacman(MovableEntity):
             self._slow_movement(self._speed)
         else:
             current_cell = self._target_cell if self._target_cell else self.cell
-            next_cell = self._get_next_cell(current_cell, self.direction)
-            if self._is_cell_walkable(next_cell):
+            next_cell = CellMap.get_instance().get_next_cell(current_cell, self.direction)
+            if CellMap.get_instance().is_cell_walkable(next_cell):
                 self._active = True
                 self._moving = True
                 self._target_cell = next_cell
@@ -101,7 +102,7 @@ class Pacman(MovableEntity):
                 self._slow_movement(self._speed)
 
     @classmethod
-    def load_icons(cls):
+    def _load_icons(cls):
         if not cls._icons_loaded:
             for icon in cls.ICONS_LIST:
-                ImageUtils.get(icon)
+                FileUtils.get_image(icon)

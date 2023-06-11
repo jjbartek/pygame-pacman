@@ -1,4 +1,5 @@
-from utils.image_utils import ImageUtils
+from cell_map import CellMap
+from utils.file_utils import FileUtils
 
 
 class GameInfo:
@@ -6,16 +7,16 @@ class GameInfo:
     ICON_LIVE_SIZE_IN_CELLS = 2
     LIVE_ICON = "pacman-open-left"
 
-    def __init__(self, state):
-        self.state = state
+    def __init__(self, board):
+        self.board = board
 
-    def render(self):
-        self._render_lives()
+    def render(self, screen):
+        self._render_lives(screen)
 
-    def _render_lives(self):
+    def _render_lives(self, screen):
         x, y = self.DEFAULT_LIVES_START
-        for i in range(self.state.pacman.lives-1):
-            position = self.state.level.get_cell_position((x, y))
-            image = ImageUtils.get(self.LIVE_ICON)
-            self.state.screen.blit(image, image.get_rect(center=position))
+        for i in range(self.board.pacman.lives - 1):
+            position = CellMap.get_cell_position((x, y))
+            image = FileUtils.get_image(self.LIVE_ICON)
+            screen.blit(image, image.get_rect(center=position))
             x += self.ICON_LIVE_SIZE_IN_CELLS

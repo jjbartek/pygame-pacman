@@ -1,14 +1,19 @@
 import math
 import time
 
+import pygame.sprite
+
+from cell_map import CellMap
 from direction import Direction
 from movable_entity import MovableEntity
-from utils.image_utils import ImageUtils
+from utils.file_utils import FileUtils
 
 
 class Ghost(MovableEntity):
     DEFAULT_GHOST_MOVE_TIME = 160
     DEFAULT_DIRECTION = Direction.UP
+    FIRST_CELL = (13.5, 14)
+
     NO_MOVE_UP_CELLS = [
         (12, 14), (15, 14), (12, 26), (15, 26)
     ]
@@ -30,43 +35,43 @@ class Ghost(MovableEntity):
         Direction.RIGHT: Direction.LEFT
     }
 
-    def __init__(self, name, state):
+    def __init__(self, name, start_cell, destined_cell, board):
         super().__init__()
         self.name = name
-        self.state = state
-        self.start_cell = tuple(self.state.level.ghost_home_cells[name])
-        self.default_destination_cell = tuple(self.state.level.ghost_destination_cells[name])
+        self.board = board
+        self.start_cell = start_cell
+        self.default_destination_cell = destined_cell
         self.cell = self.start_cell
         self.direction = self.DEFAULT_DIRECTION
         self.destined_cell = self.default_destination_cell
-        self.image = ImageUtils.get(self._get_icon_name())
+        self.image = FileUtils.get_image(self._get_icon_name())
         self._speed = self.DEFAULT_GHOST_MOVE_TIME
         self._next_cell = None
         self._next_direction = None
 
-        self._update_position(self.state.level.get_cell_position(self.cell))
+        self._update_position(CellMap.get_cell_position(self.cell))
 
     def update(self):
-        if self._active and not self.state.freeze:
+        if self._active and not self.board.freeze:
             self._detect_collision()
             self._move()
-            self.image = ImageUtils.get(self._get_icon_name())
+            self.image = FileUtils.get_image(self._get_icon_name())
 
     def reset(self):
-        MovableEntity.reset(self)
+        super().reset()
         self.cell = self.start_cell
         self.direction = self.DEFAULT_DIRECTION
         self.destined_cell = self.default_destination_cell
-        self.image = ImageUtils.get(self._get_icon_name())
+        self.image = FileUtils.get_image(self._get_icon_name())
         self._speed = self.DEFAULT_GHOST_MOVE_TIME
         self._next_cell = None
         self._next_direction = None
 
-        self._update_position(self.state.level.get_cell_position(self.cell))
+        self._update_position(CellMap.get_cell_position(self.cell))
 
     def _detect_collision(self):
-        if self.cell == self.state.pacman.cell:
-            self.state.pacman_dead()
+        if self.cell == self.board.pacman.cell:
+            self.board.pacman_dead()
 
     def _move(self):
         speed = self._speed
@@ -86,7 +91,7 @@ class Ghost(MovableEntity):
             self._slow_movement(speed)
 
     def activate(self):
-        self._next_cell = self._get_next_cell(self.cell, Direction.LEFT)
+        self._next_cell = CellMap.get_instance().get_next_cell(self.cell, Direction.LEFT)
         self._next_direction = Direction.LEFT
         self._active = True
 
@@ -105,7 +110,7 @@ class Ghost(MovableEntity):
     def _get_possible_moves(self):
         moves = {}
         for direction in Direction:
-            next_cell = self._get_next_cell(self._next_cell, direction)
+            next_cell = CellMap.get_instance().get_next_cell(self._next_cell, direction)
             if self._can_move_to_cell(direction, next_cell):
                 moves[direction] = next_cell
 
@@ -113,7 +118,7 @@ class Ghost(MovableEntity):
 
     def _can_move_to_cell(self, direction, next_cell):
         return direction != self.REVERSE[self.direction] \
-            and self._is_cell_walkable(next_cell) \
+            and CellMap.get_instance().is_cell_walkable(next_cell) \
             and not (direction == Direction.UP and self._next_cell in self.NO_MOVE_UP_CELLS)
 
     def _get_icon_name(self):

@@ -7,22 +7,13 @@ from ghosts.pinky import Pinky
 
 
 class GhostsManager:
-    def __init__(self):
-        self.group = None
-        self.state = None
-        self.blinky = None
-        self.pinky = None
-        self.inky = None
-        self.clyde = None
-
-    def initialize(self, state):
+    def __init__(self, board):
+        self.board = board
         self.group = pygame.sprite.Group()
-        self.state = state
-
-        self.blinky = Blinky(state)
-        self.pinky = Pinky(state)
-        self.inky = Inky(state)
-        self.clyde = Clyde(state)
+        self.blinky = Blinky(self.board)
+        self.pinky = Pinky(self.board)
+        self.inky = Inky(self.board)
+        self.clyde = Clyde(self.board)
 
         self.group.add(self.blinky)
         self.group.add(self.pinky)
@@ -35,8 +26,8 @@ class GhostsManager:
         for ghost in self.group:
             ghost.update()
 
-    def render(self):
-        self.group.draw(self.state.screen)
+    def render(self, screen):
+        self.group.draw(screen)
 
     def reset(self):
         for ghost in self.group:

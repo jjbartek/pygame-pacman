@@ -11,8 +11,8 @@ class Collectible(pygame.sprite.Sprite):
         self.score = score
         self.rect = self.image.get_rect(center=position)
 
-    def collect(self, state):
-        state.add_score(self.score)
+    def collect(self, board):
+        board.add_score(self.score)
         self.kill()
 
     def update(self):
