@@ -2,11 +2,12 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 
-class Stages(Enum):
-    MENU = 1
-    GAME = 2
-    PAUSE = 3
-    QUIT = 4
+class StageUpdateType(Enum):
+    START_GAME = 1
+    PAUSE = 2
+    CONTINUE = 3
+    RESTART = 4
+    QUIT = 5
 
 
 class Stage(ABC):

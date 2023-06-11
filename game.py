@@ -5,7 +5,7 @@ import pygame
 from stages.game_stage import GameStage
 from stages.menu_stage import MenuStage
 from stages.pause_menu_stage import PauseMenuStage
-from stages.stage import Stages
+from stages.stage import StageUpdateType
 from stages.start_menu_stage import StartMenuStage
 from utils.file_utils import FileUtils
 
@@ -39,21 +39,22 @@ class Game:
 
             self._clock.tick(Game.MAX_FPS)
             pygame.display.update()
+            pygame.event.pump()
 
         self._terminate()
 
-    def _update_stage(self, new_stage_type):
-        if new_stage_type == Stages.GAME:
-            if self.current_stage == self.start_menu_stage:
-                self.game_stage.start_game()
-
+    def _update_stage(self, update_type):
+        if update_type == StageUpdateType.START_GAME \
+                or update_type == StageUpdateType.RESTART:
             self.current_stage = self.game_stage
-        elif new_stage_type == Stages.MENU:
-            self.current_stage = self.start_menu_stage
-        elif new_stage_type == Stages.PAUSE:
+            self.game_stage.start_game()
+        elif update_type == StageUpdateType.CONTINUE:
+            self.current_stage = self.game_stage
+        elif update_type == StageUpdateType.PAUSE:
             self.current_stage = self.pause_menu_stage
-        elif new_stage_type == Stages.QUIT:
+        elif update_type == StageUpdateType.QUIT:
             self.current_stage = None
+        pygame.time.wait(300)
 
     def _update(self):
         events = pygame.event.get()
@@ -67,19 +68,15 @@ class Game:
             self.current_stage.render(self.screen)
 
     def _handle_events(self, events, key_pressed):
-        if key_pressed[pygame.K_ESCAPE]:
-            self._quit()
-
         for event in events:
-            if event.type == pygame.QUIT:
-                self._quit()
-
-    def _quit(self):
-        if self.current_stage == self.game_stage:
-            self._update_stage(Stages.PAUSE)
-        else:
-            self._update_stage(Stages.QUIT)
-        pygame.time.wait(500)
+            if key_pressed[pygame.K_ESCAPE] and self.current_stage != self.start_menu_stage:
+                if self.current_stage == self.pause_menu_stage:
+                    self._update_stage(StageUpdateType.CONTINUE)
+                else:
+                    self._update_stage(StageUpdateType.PAUSE)
+                break
+            elif event.type == pygame.QUIT:
+                self._update_stage(StageUpdateType.QUIT)
 
     def _update_window(self):
         icon = FileUtils.get_image(self.GAME_ICON_NAME)

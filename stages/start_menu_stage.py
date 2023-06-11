@@ -1,5 +1,5 @@
 from stages.menu_stage import MenuStage
-from stages.stage import Stages
+from stages.stage import StageUpdateType
 
 
 class StartMenuStage(MenuStage):
@@ -14,7 +14,7 @@ class StartMenuStage(MenuStage):
         self._add_button(self.QUIT_BUTTON, self._quit_clicked)
 
     def _start_game_clicked(self):
-        self.notify(Stages.GAME)
+        self.notify(StageUpdateType.START_GAME)
 
     def _quit_clicked(self):
-        self.notify(Stages.QUIT)
+        self.notify(StageUpdateType.QUIT)
