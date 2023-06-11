@@ -1,8 +1,13 @@
+from enum import Enum
+
 import pygame
 
-from game_info import GameInfo
+from stages.game_stage import GameStage
+from stages.menu_stage import MenuStage
+from stages.pause_menu_stage import PauseMenuStage
+from stages.stage import Stages
+from stages.start_menu_stage import StartMenuStage
 from utils.file_utils import FileUtils
-from board import Board
 
 
 class Game:
@@ -16,14 +21,19 @@ class Game:
 
         self._clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(self.DIMENSIONS)
-        self.is_running = True
-        self.board = Board()
+        self.start_menu_stage = StartMenuStage()
+        self.pause_menu_stage = PauseMenuStage()
+        self.game_stage = GameStage()
+        self.current_stage = self.start_menu_stage
 
-        self._initialize_screen()
-        self.board.start_game()  # move to update when chosen in menu
+        self.start_menu_stage.subscribe(self._update_stage)
+        self.pause_menu_stage.subscribe(self._update_stage)
+        self.game_stage.subscribe(self._update_stage)
+
+        self._update_window()
 
     def run(self):
-        while self.is_running:
+        while self.current_stage:
             self._update()
             self._render()
 
@@ -32,21 +42,46 @@ class Game:
 
         self._terminate()
 
+    def _update_stage(self, new_stage_type):
+        if new_stage_type == Stages.GAME:
+            if self.current_stage == self.start_menu_stage:
+                self.game_stage.start_game()
+
+            self.current_stage = self.game_stage
+        elif new_stage_type == Stages.MENU:
+            self.current_stage = self.start_menu_stage
+        elif new_stage_type == Stages.PAUSE:
+            self.current_stage = self.pause_menu_stage
+        elif new_stage_type == Stages.QUIT:
+            self.current_stage = None
+
     def _update(self):
-        self._handle_quit()
-        self.board.update()
+        events = pygame.event.get()
+        key_pressed = pygame.key.get_pressed()
+        if self.current_stage:
+            self.current_stage.update(events, key_pressed)
+        self._handle_events(events, key_pressed)
 
     def _render(self):
-        self.board.render(self.screen)
+        if self.current_stage:
+            self.current_stage.render(self.screen)
 
-    def _handle_quit(self):
-        events = pygame.event.get()
+    def _handle_events(self, events, key_pressed):
+        if key_pressed[pygame.K_ESCAPE]:
+            self._quit()
+
         for event in events:
-            key_pressed = pygame.key.get_pressed()
-            if event.type == pygame.QUIT or key_pressed[pygame.K_ESCAPE]:
-                self.is_running = False
+            if event.type == pygame.QUIT:
+                self._quit()
 
-    def _initialize_screen(self):
+    def _quit(self):
+        if self.current_stage == self.game_stage:
+            self._update_stage(Stages.PAUSE)
+        else:
+            self._update_stage(Stages.QUIT)
+        pygame.time.wait(500)
+
+    def _update_window(self):
         icon = FileUtils.get_image(self.GAME_ICON_NAME)
 
         pygame.display.set_caption(self.GAME_TITLE)

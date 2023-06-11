@@ -1,4 +1,6 @@
 import time
+from abc import ABC, abstractmethod
+
 import pygame
 
 from cell import Cell
@@ -6,7 +8,7 @@ from cell_map import CellMap
 from direction import Direction
 
 
-class MovableEntity(pygame.sprite.Sprite):
+class MovableEntity(pygame.sprite.Sprite, ABC):
     KEY_TO_DIRECTION_MAPPING = {
         pygame.K_LEFT: Direction.LEFT,
         pygame.K_RIGHT: Direction.RIGHT,
@@ -38,6 +40,7 @@ class MovableEntity(pygame.sprite.Sprite):
         self._last_icon_update = None
         self._target_cell = None
 
+    @abstractmethod
     def _move(self):
         pass
 

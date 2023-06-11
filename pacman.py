@@ -50,16 +50,15 @@ class Pacman(MovableEntity):
         self._update_position(CellMap.get_cell_position(self.cell))
         self._last_icon_update = time.time()
 
-    def update(self):
+    def update(self, key_pressed):
         if not self.board.freeze:
-            self._update_direction()
+            self._update_direction(key_pressed)
             self._update_icon()
             self._move()
 
-    def _update_direction(self):
-        keys_pressed = pygame.key.get_pressed()
+    def _update_direction(self, key_pressed):
         for key in self.KEY_TO_DIRECTION_MAPPING.keys():
-            if keys_pressed[key]:
+            if key_pressed[key]:
                 new_direction = self.KEY_TO_DIRECTION_MAPPING[key]
                 self._next_direction = new_direction
                 break

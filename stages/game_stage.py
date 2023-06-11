@@ -7,6 +7,7 @@ from level import Level
 from managers.ghosts_manager import GhostsManager
 from pacman import Pacman
 from managers.collectibles_manager import CollectiblesManager
+from stages.stage import Stage
 from utils.file_utils import FileUtils
 from utils.time_utils import TimeUtils
 
@@ -16,7 +17,7 @@ class FreezeReasons(Enum):
     LEVEL_END = 2
 
 
-class Board:
+class GameStage(Stage):
     PACMAN_DEAD_FREEZE_TIME = 1500
     BACKGROUND_CORDS = (0, 0)
     BACKGROUND_NAME = "board"
@@ -24,6 +25,7 @@ class Board:
     MAX_LEVEL = 1
 
     def __init__(self):
+        super().__init__()
         self.level_id = 0
         self.level = None
         self.collectibles = None
@@ -62,9 +64,9 @@ class Board:
     def end_game(self):
         pass
 
-    def update(self):
+    def update(self, events, key_pressed):
         self.collectibles.update()
-        self.pacman.update()
+        self.pacman.update(key_pressed)
         self.ghosts.update()
 
         if self.freeze and self.freeze_reason == FreezeReasons.PACMAN_DEAD \
