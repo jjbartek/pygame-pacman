@@ -1,4 +1,4 @@
 class Level:
 
-    def __init__(self, board):
-        self.board = board
+    def __init__(self, game):
+        self.game = game

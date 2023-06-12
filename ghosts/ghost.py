@@ -35,10 +35,10 @@ class Ghost(MovableEntity):
         Direction.RIGHT: Direction.LEFT
     }
 
-    def __init__(self, name, start_cell, destined_cell, board):
+    def __init__(self, name, start_cell, destined_cell, game):
         super().__init__()
         self.name = name
-        self.board = board
+        self.game = game
         self.start_cell = start_cell
         self.default_destination_cell = destined_cell
         self.cell = self.start_cell
@@ -52,7 +52,7 @@ class Ghost(MovableEntity):
         self._update_position(CellMap.get_cell_position(self.cell))
 
     def update(self):
-        if self._active and not self.board.freeze:
+        if self._active and not self.game.freeze:
             self._detect_collision()
             self._move()
             self.image = FileUtils.get_image(self._get_icon_name())
@@ -70,8 +70,8 @@ class Ghost(MovableEntity):
         self._update_position(CellMap.get_cell_position(self.cell))
 
     def _detect_collision(self):
-        if self.cell == self.board.pacman.cell:
-            self.board.pacman_dead()
+        if self.cell == self.game.pacman.cell:
+            self.game.pacman_dead()
 
     def _move(self):
         speed = self._speed

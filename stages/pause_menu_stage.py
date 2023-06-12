@@ -1,3 +1,5 @@
+import pygame
+
 from stages.menu_stage import MenuStage
 from stages.stage import StageUpdateType
 
@@ -23,3 +25,10 @@ class PauseMenuStage(MenuStage):
 
     def _restart_clicked(self):
         self.notify(StageUpdateType.RESTART)
+
+    def update(self, events, key_pressed):
+        for event in events:
+            if key_pressed[pygame.K_ESCAPE]:
+                self.notify(StageUpdateType.CONTINUE)
+                return
+        super().update(events, key_pressed)

@@ -61,22 +61,17 @@ class Game:
         key_pressed = pygame.key.get_pressed()
         if self.current_stage:
             self.current_stage.update(events, key_pressed)
-        self._handle_events(events, key_pressed)
+        self._handle_events(events)
 
     def _render(self):
         if self.current_stage:
             self.current_stage.render(self.screen)
 
-    def _handle_events(self, events, key_pressed):
+    def _handle_events(self, events):
         for event in events:
-            if key_pressed[pygame.K_ESCAPE] and self.current_stage != self.start_menu_stage:
-                if self.current_stage == self.pause_menu_stage:
-                    self._update_stage(StageUpdateType.CONTINUE)
-                else:
-                    self._update_stage(StageUpdateType.PAUSE)
-                break
-            elif event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:
                 self._update_stage(StageUpdateType.QUIT)
+                break
 
     def _update_window(self):
         icon = FileUtils.get_image(self.GAME_ICON_NAME)

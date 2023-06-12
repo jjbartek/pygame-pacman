@@ -7,13 +7,13 @@ from ghosts.pinky import Pinky
 
 
 class GhostsManager:
-    def __init__(self, board):
-        self.board = board
+    def __init__(self, game):
+        self.game = game
         self.group = pygame.sprite.Group()
-        self.blinky = Blinky(self.board)
-        self.pinky = Pinky(self.board)
-        self.inky = Inky(self.board)
-        self.clyde = Clyde(self.board)
+        self.blinky = Blinky(self.game)
+        self.pinky = Pinky(self.game)
+        self.inky = Inky(self.game)
+        self.clyde = Clyde(self.game)
 
         self.group.add(self.blinky)
         self.group.add(self.pinky)

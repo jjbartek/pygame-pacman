@@ -1,13 +1,15 @@
 import time
 from enum import Enum
 
+import pygame
+
 from cell_map import CellMap
 from game_info import GameInfo
 from level import Level
 from managers.ghosts_manager import GhostsManager
 from pacman import Pacman
 from managers.collectibles_manager import CollectiblesManager
-from stages.stage import Stage
+from stages.stage import Stage, StageUpdateType
 from utils.file_utils import FileUtils
 from utils.time_utils import TimeUtils
 
@@ -65,6 +67,7 @@ class GameStage(Stage):
         pass
 
     def update(self, events, key_pressed):
+        self._handle_escape(events, key_pressed)
         self.collectibles.update()
         self.pacman.update(key_pressed)
         self.ghosts.update()
@@ -77,6 +80,12 @@ class GameStage(Stage):
             self.pacman.lives -= 1
             self.pacman.reset()
             self.ghosts.reset()
+
+    def _handle_escape(self, events, key_pressed):
+        for event in events:
+            if key_pressed[pygame.K_ESCAPE]:
+                self.notify(StageUpdateType.PAUSE)
+                break
 
     def render(self, screen):
         self._render_background(screen)

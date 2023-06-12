@@ -29,14 +29,14 @@ class Pacman(MovableEntity):
     ICON_UPDATE_TIME = 100  # milliseconds after icon is updated
     DEFAULT_LIVES = 3
 
-    def __init__(self, board):
+    def __init__(self, game):
         super().__init__()
         self._load_icons()
 
         self._next_direction = None
         self._icon_counter = 0
         self.lives = self.DEFAULT_LIVES
-        self.board = board
+        self.game = game
 
         self.reset()
 
@@ -51,7 +51,7 @@ class Pacman(MovableEntity):
         self._last_icon_update = time.time()
 
     def update(self, key_pressed):
-        if not self.board.freeze:
+        if not self.game.freeze:
             self._update_direction(key_pressed)
             self._update_icon()
             self._move()

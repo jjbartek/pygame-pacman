@@ -4,9 +4,9 @@ from cell_map import CellMap
 
 
 class CollectiblesManager:
-    def __init__(self, board):
+    def __init__(self, game):
         self.group = pygame.sprite.Group()
-        self.board = board
+        self.game = game
 
         self._load()
 
@@ -18,9 +18,9 @@ class CollectiblesManager:
 
     def update(self):
         for collectible in self.group:
-            if collectible.collided(self.board.pacman.cell):
-                collectible.collect(self.board)
-            elif not self.board.freeze:
+            if collectible.collided(self.game.pacman.cell):
+                collectible.collect(self.game)
+            elif not self.game.freeze:
                 collectible.update()
 
     def _load(self):
