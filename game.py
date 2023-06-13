@@ -48,7 +48,8 @@ class Game:
             pygame.display.update()
             pygame.event.pump()
 
-        self._terminate()
+        self.game_stage.save_high_score()
+        pygame.quit()
 
     def _update_stage(self, update_type):
         pygame.time.wait(300)
@@ -79,7 +80,3 @@ class Game:
         pygame.display.set_caption(self.GAME_TITLE)
         pygame.display.set_icon(icon)
         pygame.display.flip()
-
-    @staticmethod
-    def _terminate():
-        pygame.quit()

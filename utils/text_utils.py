@@ -9,7 +9,11 @@ class TextUtils:
     FONT_PATH = os.path.join(os.getcwd(), 'resources', 'emulgic.ttf')
 
     @classmethod
-    def get_text(cls, text, size, color):
+    def get_text(cls, text, size, color, cache=True):
+        if not cache:
+            font = cls._get_font(size)
+            return font.render(text, True, color)
+
         key = (text, size, color)
         if key not in cls._texts:
             font = cls._get_font(size)

@@ -1,3 +1,4 @@
+import os.path
 import time
 import pygame
 
@@ -38,6 +39,7 @@ class GameStage(Stage):
         self.game_info = None
         self.background = FileUtils.get_image(self.BACKGROUND_NAME)
         self.collected = 0
+        self.high_score = self._get_high_score()
         self._current_siren_id = None
         self._main_channel = pygame.mixer.Channel(1)
         self._started = False
@@ -91,6 +93,7 @@ class GameStage(Stage):
 
     def start_stage(self, update_type):
         if update_type == StageUpdateType.RESTART or not self._started:
+            self.save_high_score()
             self.start_game()
 
     def update(self, events, key_pressed):
@@ -162,3 +165,17 @@ class GameStage(Stage):
 
     def _render_background(self, screen):
         screen.blit(self.background, self.BACKGROUND_CORDS)
+
+    def save_high_score(self):
+        if self.score >= self.high_score:
+            self.high_score = self.score
+            with open(os.path.join(FileUtils.PATH_TO_RESOURCES, 'cache.bin'), 'wb') as file:
+                file.write(self.score.to_bytes(24, byteorder='big', signed=False))
+
+    @classmethod
+    def _get_high_score(cls):
+        try:
+            with open(os.path.join(FileUtils.PATH_TO_RESOURCES, 'cache.bin'), 'rb') as file:
+                return int.from_bytes(file.read(), byteorder='big')
+        except (ValueError, FileNotFoundError):
+            return 0
