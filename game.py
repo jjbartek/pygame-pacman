@@ -1,12 +1,10 @@
-from enum import Enum
-
 import pygame
 
 from stages.game_stage import GameStage
-from stages.menu_stage import MenuStage
 from stages.pause_menu_stage import PauseMenuStage
 from stages.stage import StageUpdateType
 from stages.start_menu_stage import StartMenuStage
+from utils.audio_utils import AudioUtils
 from utils.file_utils import FileUtils
 
 
@@ -18,6 +16,7 @@ class Game:
 
     def __init__(self):
         pygame.init()
+        AudioUtils.load_sounds()
 
         self._clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(self.DIMENSIONS)
@@ -29,6 +28,14 @@ class Game:
         self.start_menu_stage.subscribe(self._update_stage)
         self.pause_menu_stage.subscribe(self._update_stage)
         self.game_stage.subscribe(self._update_stage)
+
+        self.stage_map = {
+            StageUpdateType.START_MENU: self.start_menu_stage,
+            StageUpdateType.RESTART: self.game_stage,
+            StageUpdateType.CONTINUE: self.game_stage,
+            StageUpdateType.PAUSE: self.pause_menu_stage,
+            StageUpdateType.QUIT: None,
+        }
 
         self._update_window()
 
@@ -44,17 +51,10 @@ class Game:
         self._terminate()
 
     def _update_stage(self, update_type):
-        if update_type == StageUpdateType.START_GAME \
-                or update_type == StageUpdateType.RESTART:
-            self.current_stage = self.game_stage
-            self.game_stage.start_game()
-        elif update_type == StageUpdateType.CONTINUE:
-            self.current_stage = self.game_stage
-        elif update_type == StageUpdateType.PAUSE:
-            self.current_stage = self.pause_menu_stage
-        elif update_type == StageUpdateType.QUIT:
-            self.current_stage = None
         pygame.time.wait(300)
+        self.current_stage = self.stage_map[update_type]
+        if self.current_stage:
+            self.current_stage.start_stage(update_type)
 
     def _update(self):
         events = pygame.event.get()

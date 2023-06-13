@@ -1,8 +1,6 @@
 import math
 import time
 
-import pygame.sprite
-
 from cell_map import CellMap
 from direction import Direction
 from movable_entity import MovableEntity
@@ -13,6 +11,7 @@ class Ghost(MovableEntity):
     DEFAULT_GHOST_MOVE_TIME = 160
     DEFAULT_DIRECTION = Direction.UP
     FIRST_CELL = (13.5, 14)
+    COLLISION_OFFSET = 5
 
     NO_MOVE_UP_CELLS = [
         (12, 14), (15, 14), (12, 26), (15, 26)
@@ -52,10 +51,10 @@ class Ghost(MovableEntity):
         self._update_position(CellMap.get_cell_position(self.cell))
 
     def update(self):
-        if self._active and not self.game.freeze:
-            self._detect_collision()
+        if self._active:
             self._move()
             self.image = FileUtils.get_image(self._get_icon_name())
+            self._detect_collision()
 
     def reset(self):
         super().reset()
@@ -70,7 +69,11 @@ class Ghost(MovableEntity):
         self._update_position(CellMap.get_cell_position(self.cell))
 
     def _detect_collision(self):
-        if self.cell == self.game.pacman.cell:
+        self_x, self_y = self.rect.center
+        pacman_x, pacman_y = self.game.pacman.rect.center
+
+        if pacman_x - self.COLLISION_OFFSET <= self_x <= pacman_x + self.COLLISION_OFFSET \
+                and pacman_y - self.COLLISION_OFFSET <= self_y <= pacman_y + self.COLLISION_OFFSET:
             self.game.pacman_dead()
 
     def _move(self):
@@ -105,7 +108,7 @@ class Ghost(MovableEntity):
     def _get_distance_to_destined(self, cell):
         x, y = cell
         destined_x, destined_y = self.destined_cell
-        return math.sqrt((x - destined_x)**2 + (y - destined_y)**2)
+        return math.sqrt((x - destined_x) ** 2 + (y - destined_y) ** 2)
 
     def _get_possible_moves(self):
         moves = {}

@@ -2,6 +2,7 @@ import time
 
 import pygame.sprite
 
+from utils.audio_utils import AudioUtils
 from utils.file_utils import FileUtils
 from utils.text_utils import TextUtils
 from utils.time_utils import TimeUtils
@@ -30,9 +31,10 @@ class Button(pygame.sprite.Sprite):
         mouse_position = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONUP and self.rect.collidepoint(mouse_position):
+                AudioUtils.get_sound(AudioUtils.BUTTON_SOUND).play()
                 self._on_click()
 
-        if TimeUtils.time_elapsed_since(self._timer) >= self.BUTTON_CHECK_TIME:
+        if TimeUtils.time_elapsed(self._timer) >= self.BUTTON_CHECK_TIME:
             if self.rect.collidepoint(mouse_position):
                 self._current_image = self.hover_image
             else:

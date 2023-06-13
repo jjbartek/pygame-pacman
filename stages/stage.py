@@ -3,11 +3,11 @@ from enum import Enum
 
 
 class StageUpdateType(Enum):
-    START_GAME = 1
+    START_MENU = 1
     PAUSE = 2
     CONTINUE = 3
     RESTART = 4
-    QUIT = 5
+    QUIT = 10
 
 
 class Stage(ABC):
@@ -27,4 +27,7 @@ class Stage(ABC):
 
     @abstractmethod
     def render(self, screen):
+        pass
+
+    def start_stage(self, update_type):
         pass

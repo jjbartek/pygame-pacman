@@ -7,5 +7,5 @@ class Cherry(Collectible):
     POINTS = 100
 
     def __init__(self, position, cell):
-        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Cherry.POINTS, cell)
+        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Cherry.POINTS, False, cell)
 

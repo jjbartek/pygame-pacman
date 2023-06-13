@@ -33,6 +33,7 @@ class CellMap:
             Dot: [],
             Energizer: []
         }
+        self.count = 0
         self.map = []
 
         self._load_map()
@@ -57,6 +58,7 @@ class CellMap:
                 if char in self.CHAR_COLLECTIBLE_MAP:
                     collectible_class = self.CHAR_COLLECTIBLE_MAP[char]
                     self.collectibles[collectible_class].append(cell_pos)
+                    self.count += 1
 
                 row.append(self.CHAR_CELL_MAP[char])
             self.map.append(row)

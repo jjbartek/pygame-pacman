@@ -14,7 +14,7 @@ class StartMenuStage(MenuStage):
         self._add_button(self.QUIT_BUTTON, self._quit_clicked)
 
     def _start_game_clicked(self):
-        self.notify(StageUpdateType.START_GAME)
+        self.notify(StageUpdateType.RESTART)
 
     def _quit_clicked(self):
         self.notify(StageUpdateType.QUIT)

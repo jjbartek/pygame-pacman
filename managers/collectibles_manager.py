@@ -1,6 +1,8 @@
 import pygame
 
 from cell_map import CellMap
+from collectibles.dot import Dot
+from collectibles.energizer import Energizer
 
 
 class CollectiblesManager:
@@ -19,8 +21,11 @@ class CollectiblesManager:
     def update(self):
         for collectible in self.group:
             if collectible.collided(self.game.pacman.cell):
-                collectible.collect(self.game)
-            elif not self.game.freeze:
+                if collectible.countable:
+                    self.game.add_collected()
+                self.game.add_score(collectible.score)
+                collectible.kill()
+            else:
                 collectible.update()
 
     def _load(self):
