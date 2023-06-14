@@ -14,5 +14,5 @@ class Collectible(pygame.sprite.Sprite):
     def update(self):
         pass
 
-    def collided(self, cell):
+    def collides(self, cell):
         return self.cell == cell

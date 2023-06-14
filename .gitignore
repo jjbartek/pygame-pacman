@@ -5,6 +5,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# game high-score cached value
+resources/cache.bin
+
 # C extensions
 *.so
 

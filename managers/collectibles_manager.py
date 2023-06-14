@@ -1,14 +1,14 @@
 import pygame
 
 from cell_map import CellMap
-from collectibles.dot import Dot
-from collectibles.energizer import Energizer
+from utils.audio_utils import AudioUtils
 
 
 class CollectiblesManager:
     def __init__(self, game):
         self.group = pygame.sprite.Group()
         self.game = game
+        self._eat_channel = pygame.mixer.Channel(2)
 
         self._load()
 
@@ -20,13 +20,22 @@ class CollectiblesManager:
 
     def update(self):
         for collectible in self.group:
-            if collectible.collided(self.game.pacman.cell):
-                if collectible.countable:
-                    self.game.add_collected()
+            collectible.update()
+
+    def handle_collision(self, cell):
+        collision = False
+        for collectible in self.group:
+            if collectible.collides(cell):
+                if not self._eat_channel.get_sound():
+                    self._eat_channel.play(AudioUtils.get_sound(AudioUtils.EAT_SOUND), loops=-1)
+
+                collision = True
                 self.game.add_score(collectible.score)
+                self.game.add_collected()
                 collectible.kill()
-            else:
-                collectible.update()
+
+        if not collision:
+            self._eat_channel.stop()
 
     def _load(self):
         all_collectibles = CellMap.get_instance().collectibles

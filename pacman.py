@@ -90,13 +90,15 @@ class Pacman(MovableEntity):
         if self._moving:
             self._slow_movement(self._speed)
         else:
-            current_cell = self._target_cell if self._target_cell else self.cell
-            next_cell = CellMap.get_instance().get_next_cell(current_cell, self.direction)
+            self.game.collectibles.handle_collision(self.cell)
+
+            next_cell = CellMap.get_instance().get_next_cell(self.cell, self.direction)
             if CellMap.get_instance().is_cell_walkable(next_cell):
                 self._moving = True
                 self._target_cell = next_cell
                 self._move_start_time = time.time()
                 self._slow_movement(self._speed)
+
 
     @classmethod
     def _load_icons(cls):
