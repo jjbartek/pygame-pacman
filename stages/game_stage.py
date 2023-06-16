@@ -83,6 +83,8 @@ class GameStage(Stage):
         if update_type == StageUpdateType.RESTART or not self._started:
             self.save_high_score()
             self.start_game()
+        else:
+            pygame.mixer.unpause()
 
     def update(self, events, key_pressed):
         self._handle_escape(events, key_pressed)

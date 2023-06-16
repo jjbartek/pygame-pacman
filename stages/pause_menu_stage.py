@@ -12,6 +12,9 @@ class PauseMenuStage(MenuStage):
     def __init__(self):
         super().__init__()
 
+    def start_stage(self, update_type):
+        pygame.mixer.pause()
+
     def _add_buttons(self):
         self._add_button(self.CONTINUE_BUTTON, self._continue_clicked)
         self._add_button(self.RESTART_BUTTON, self._restart_clicked)

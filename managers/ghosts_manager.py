@@ -28,7 +28,7 @@ class GhostsManager:
         self.group.add(self.inky)
         self.group.add(self.clyde)
 
-        self.inky.activate()
+        self.clyde.activate()
 
     def update(self):
         for ghost in self.group:
@@ -54,4 +54,4 @@ class GhostsManager:
         for ghost in self.group:
             ghost.reset()
 
-        self.blinky.activate()
+        self.clyde.activate()

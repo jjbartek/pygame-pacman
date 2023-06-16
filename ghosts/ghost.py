@@ -40,13 +40,14 @@ class Ghost(MovableEntity, ABC):
         Direction.RIGHT: Direction.LEFT
     }
 
-    def __init__(self, name, start_cell, start_real_cell, default_goal_cell, manager):
+    def __init__(self, name, start_cell, start_real_cell, scatter_cell, color, manager):
         super().__init__()
         self.name = name
         self.start_cell = start_cell
         self.start_real_cell = start_real_cell
         self.manager = manager
-        self.default_goal_cell = default_goal_cell
+        self.color = color
+        self.scatter_cell = scatter_cell
         self.cell = self.start_cell
         self.image = FileUtils.get_image(self._get_icon_name())
         self.direction = None
@@ -75,7 +76,7 @@ class Ghost(MovableEntity, ABC):
         elif self.manager.mode == GhostModes.CHASE:
             goal = self.get_chase_cell()
         elif self.manager.mode == GhostModes.SCATTER:
-            goal = self.default_goal_cell
+            goal = self.scatter_cell
         else:
             goal = None
 
@@ -98,13 +99,17 @@ class Ghost(MovableEntity, ABC):
     def reset(self):
         super().reset()
         self.cell = self.start_cell
-        self.direction = self.DEFAULT_DIRECTION
+        self.direction = None
         self.image = FileUtils.get_image(self._get_icon_name())
+        self.goal_cell = None
+        self.cell = self.start_cell
         self._speed = self.DEFAULT_GHOST_MOVE_TIME
         self._next_cell = None
         self._next_direction = None
         self._previous_cell = None
         self._reverse_direction = False
+        self._active = False
+        self._out_of_home = False
 
         self._update_position(CellMap.get_cell_position(self.cell))
 
@@ -121,13 +126,6 @@ class Ghost(MovableEntity, ABC):
 
         return center_x - self.COLLISION_OFFSET <= self_x <= center_x + self.COLLISION_OFFSET \
             and center_y - self.COLLISION_OFFSET <= self_y <= center_y + self.COLLISION_OFFSET
-
-    def render(self, screen):
-        super().render(screen)
-        if self._active and self.goal_cell is not None:
-            x, y = CellMap.get_cell_position(self.goal_cell, center=False)
-            size = CellMap.CELL_SIZE_IN_PIXELS
-            pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(x, y, size, size), 2)
 
     def _move(self):
         speed = self._speed
@@ -237,4 +235,9 @@ class Ghost(MovableEntity, ABC):
         else:
             return cell_type in [Cell.SPACE, Cell.TUNNEL, Cell.SPACE_GATE]
 
-
+    def render(self, screen):
+        super().render(screen)
+        if self._active and self.goal_cell is not None:
+            x, y = CellMap.get_cell_position(self.goal_cell, center=False)
+            size = CellMap.CELL_SIZE_IN_PIXELS
+            pygame.draw.rect(screen, self.color, pygame.Rect(x, y, size, size), 2)
