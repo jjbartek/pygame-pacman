@@ -29,6 +29,7 @@ class AudioUtils:
         if not cls._loaded:
             for sound in cls.ALL_SOUNDS:
                 cls._sounds[sound] = pygame.mixer.Sound(os.path.join(cls.PATH, f"{sound}.{cls.EXTENSION}"))
+                cls._sounds[sound].set_volume(0.2)
 
     @classmethod
     def get_sound(cls, name):

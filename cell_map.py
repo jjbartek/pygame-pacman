@@ -87,13 +87,6 @@ class CellMap:
     def _is_going_through_tunnel(self, current_cell, next_cell):
         return self.get_cell_type(current_cell) == Cell.TUNNEL and not self.cell_exists(next_cell)
 
-    def is_cell_walkable(self, cell):
-        if not self.cell_exists(cell):
-            return False
-
-        cell_type = self.get_cell_type(cell)
-        return cell_type == Cell.SPACE or cell_type == Cell.TUNNEL
-
     @classmethod
     def cell_exists(cls, cell):
         x, y = cell
@@ -101,11 +94,15 @@ class CellMap:
         return 0 <= x <= x_cells - 1 and 0 <= y <= y_cells - 1
 
     @classmethod
-    def get_cell_position(cls, cell_pos):
+    def get_cell_position(cls, cell_pos, center=True):
         x, y = cell_pos
         cell_size = cls.CELL_SIZE_IN_PIXELS
 
-        x_position = x * cell_size + cell_size / 2
-        y_position = y * cell_size + cell_size / 2
+        x_position = x * cell_size
+        y_position = y * cell_size
+
+        if center:
+            x_position += cell_size / 2
+            y_position += cell_size / 2
 
         return x_position, y_position

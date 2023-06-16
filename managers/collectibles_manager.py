@@ -1,6 +1,7 @@
 import pygame
 
 from cell_map import CellMap
+from game_states import GameStates
 from utils.audio_utils import AudioUtils
 
 
@@ -9,6 +10,7 @@ class CollectiblesManager:
         self.group = pygame.sprite.Group()
         self.game = game
         self._eat_channel = pygame.mixer.Channel(2)
+        self.collected = 0
 
         self._load()
 
@@ -31,11 +33,16 @@ class CollectiblesManager:
 
                 collision = True
                 self.game.add_score(collectible.score)
-                self.game.add_collected()
+                self.add_collected()
                 collectible.kill()
 
         if not collision:
             self._eat_channel.stop()
+
+    def add_collected(self):
+        self.collected += 1
+        if self.collected >= CellMap.get_instance().count:
+            self.game.update_state(GameStates.LEVEL_END)
 
     def _load(self):
         all_collectibles = CellMap.get_instance().collectibles

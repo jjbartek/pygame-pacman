@@ -55,28 +55,16 @@ class GameStage(Stage):
         self.pacman = Pacman(self)
         self.ghosts = GhostsManager(self)
         self.game_info = GameInfo(self)
-        self.collected = 0
         self.score = 0
         self._started = True
         self._current_siren_id = None
         self._last_background_update = None
-        self._update_state(GameStates.GAME_START)
+        self.update_state(GameStates.GAME_START)
 
     def add_score(self, score):
         self.score += score
 
-    def pacman_dead(self):
-        if self.pacman.lives > 1:
-            self._update_state(GameStates.DEAD)
-        else:
-            self._update_state(GameStates.DEAD_END)
-
-    def add_collected(self):
-        self.collected += 1
-        if self.collected >= CellMap.get_instance().count:
-            self._update_state(GameStates.LEVEL_END)
-
-    def _update_state(self, state_type):
+    def update_state(self, state_type):
         self.state = state_type
         self._state_start = time.time()
 
@@ -99,7 +87,7 @@ class GameStage(Stage):
     def update(self, events, key_pressed):
         self._handle_escape(events, key_pressed)
         if self.state == GameStates.GAME_START and TimeUtils.time_elapsed(self._state_start) >= self.START_DELAY:
-            self._update_state(GameStates.PLAYING)
+            self.update_state(GameStates.PLAYING)
         elif self.state == GameStates.PLAYING:
             self._update_sound()
             self.collectibles.update()
@@ -109,7 +97,7 @@ class GameStage(Stage):
             self.pacman.lives -= 1
             self.pacman.reset()
             self.ghosts.reset()
-            self._update_state(GameStates.GAME_START)
+            self.update_state(GameStates.GAME_START)
         elif self.state == GameStates.DEAD_END and TimeUtils.time_elapsed(self._state_start) >= self.PACMAN_DEAD_TIME:
             self.notify(StageUpdateType.START_MENU)
         elif self.state == GameStates.LEVEL_END:

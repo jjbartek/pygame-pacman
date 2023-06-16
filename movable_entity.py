@@ -121,3 +121,11 @@ class MovableEntity(pygame.sprite.Sprite, ABC):
 
     def _time_elapsed_since_move_start(self):
         return time.time() * 1000 - self._move_start_time * 1000
+
+    @staticmethod
+    def is_cell_walkable(cell):
+        if not CellMap.get_instance().cell_exists(cell):
+            return False
+
+        cell_type = CellMap.get_instance().get_cell_type(cell)
+        return cell_type == Cell.SPACE or cell_type == Cell.TUNNEL

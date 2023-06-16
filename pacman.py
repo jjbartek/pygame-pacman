@@ -75,7 +75,7 @@ class Pacman(MovableEntity):
     def _can_move_at_direction(self, direction):
         current_cell = self._target_cell if self._target_cell else self.cell
         next_cell = CellMap.get_instance().get_next_cell(current_cell, direction)
-        return CellMap.get_instance().is_cell_walkable(next_cell)
+        return self.is_cell_walkable(next_cell)
 
     def _get_icon_name(self):
         icon_type = Pacman.ICON_SUFFIX[self._icon_counter]
@@ -93,12 +93,11 @@ class Pacman(MovableEntity):
             self.game.collectibles.handle_collision(self.cell)
 
             next_cell = CellMap.get_instance().get_next_cell(self.cell, self.direction)
-            if CellMap.get_instance().is_cell_walkable(next_cell):
+            if self.is_cell_walkable(next_cell):
                 self._moving = True
                 self._target_cell = next_cell
                 self._move_start_time = time.time()
                 self._slow_movement(self._speed)
-
 
     @classmethod
     def _load_icons(cls):

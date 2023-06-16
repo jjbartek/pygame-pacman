@@ -1,0 +1,17 @@
+{
+  "bonus": ["cherry"],
+  "pacman_speed": 90,
+  "pacman_dots_speed": 79,
+  "ghost_speed": 85,
+  "ghost_tunnel_speed": 45,
+  "phase_1_dots_left": 30,
+  "phase_1_speed": 90,
+  "phase_2_dots_left": 15,
+  "phase_2_speed": 95,
+  "pacman_fright_speed": 95,
+  "pacman_fright_dots_speed": 83,
+  "fright_ghost_speed": 55,
+  "fright_duration": 5,
+  "chase_duration": [20, 20, 1033],
+  "scatter_duration": [7, 7, 5, 0.15]
+}
