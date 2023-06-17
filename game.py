@@ -52,9 +52,10 @@ class Game:
         pygame.quit()
 
     def _update_stage(self, update_type):
-        pygame.time.wait(300)
+        self.current_stage.pause()
         self.current_stage = self.stage_map[update_type]
         if self.current_stage:
+            pygame.time.wait(300)
             self.current_stage.start_stage(update_type)
 
     def _update(self):

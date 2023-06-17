@@ -1,5 +1,4 @@
-from ghosts.ghost import Ghost
-from ghosts.ghost_modes import GhostModes
+from entities.ghost import Ghost
 
 
 class Blinky(Ghost):
@@ -12,5 +11,5 @@ class Blinky(Ghost):
     def __init__(self, manager):
         super().__init__(self.NAME, self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
 
-    def get_chase_cell(self):
+    def _get_chase_cell(self):
         return self.manager.game.pacman.cell

@@ -1,5 +1,5 @@
 from cell_map import CellMap
-from game_states import GameStates
+from enums.game_states import GameState
 from utils.file_utils import FileUtils
 from utils.text_utils import TextUtils
 
@@ -53,9 +53,9 @@ class GameInfo:
 
     def _render_text(self, screen):
         text_to_render = None
-        if self.game.state == GameStates.GAME_START:
+        if self.game.state == GameState.GAME_START:
             text_to_render = self.start_text
-        elif self.game.state == GameStates.DEAD_END:
+        elif self.game.state == GameState.DEAD_END:
             text_to_render = self.end_text
 
         if text_to_render is not None:

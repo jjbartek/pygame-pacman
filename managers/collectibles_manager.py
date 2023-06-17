@@ -1,7 +1,7 @@
 import pygame
 
 from cell_map import CellMap
-from game_states import GameStates
+from enums.game_states import GameState
 from utils.audio_utils import AudioUtils
 
 
@@ -34,6 +34,7 @@ class CollectiblesManager:
                 collision = True
                 self.game.add_score(collectible.score)
                 self.add_collected()
+                collectible.on_collect(self.game)
                 collectible.kill()
 
         if not collision:
@@ -42,7 +43,7 @@ class CollectiblesManager:
     def add_collected(self):
         self.collected += 1
         if self.collected >= CellMap.get_instance().count:
-            self.game.update_state(GameStates.LEVEL_END)
+            self.game.update_state(GameState.LEVEL_END)
 
     def _load(self):
         all_collectibles = CellMap.get_instance().collectibles

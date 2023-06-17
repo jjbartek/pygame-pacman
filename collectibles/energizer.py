@@ -1,6 +1,7 @@
 import time
 
 from collectibles.collectible import Collectible
+from enums.ghost_mode import GhostMode
 from utils.file_utils import FileUtils
 from utils.time_utils import TimeUtils
 
@@ -24,3 +25,6 @@ class Energizer(Collectible):
     def _get_next_icon(self):
         self._icon_counter = (self._icon_counter + 1) % len(self.ALL_ICONS)
         return FileUtils.get_image(self.ALL_ICONS[self._icon_counter])
+
+    def on_collect(self, game):
+        game.ghosts.update_mode(GhostMode.FRIGHTENED)

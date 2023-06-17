@@ -1,7 +1,7 @@
-from cell import Cell
+from enums.cell import Cell
 from collectibles.dot import Dot
 from collectibles.energizer import Energizer
-from direction import Direction
+from enums.direction import Direction
 from utils.file_utils import FileUtils
 
 

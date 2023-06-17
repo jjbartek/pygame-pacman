@@ -1,5 +1,4 @@
-from ghosts.ghost import Ghost
-from ghosts.ghost_modes import GhostModes
+from entities.ghost import Ghost
 
 
 class Clyde(Ghost):
@@ -13,7 +12,7 @@ class Clyde(Ghost):
     def __init__(self, manager):
         super().__init__(self.NAME, self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
 
-    def get_chase_cell(self):
+    def _get_chase_cell(self):
         if self._is_in_pacman_range():
             chase_cell = self.scatter_cell
         else:

@@ -1,14 +1,13 @@
 from cell_map import CellMap
-from direction import Direction
-from ghosts.ghost import Ghost
-from ghosts.ghost_modes import GhostModes
+from enums.direction import Direction
+from entities.ghost import Ghost
 
 
 class Inky(Ghost):
     NAME = "inky"
     START_CELL = (11.5, 17)
     START_REAL_CELL = (12, 17)
-    SCATTER_CELL = (0, 35)
+    SCATTER_CELL = (26, 35)
     COLOR = (0, 255, 255)
 
     PACMAN_OFFSET = {
@@ -21,7 +20,7 @@ class Inky(Ghost):
     def __init__(self, manager):
         super().__init__(self.NAME, self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
 
-    def get_chase_cell(self):
+    def _get_chase_cell(self):
         blinky_x, blinky_y = self.manager.blinky.cell
         pacman_x, pacman_y = self.manager.game.pacman.cell
         offset_x, offset_y = self.PACMAN_OFFSET[self.manager.game.pacman.direction]

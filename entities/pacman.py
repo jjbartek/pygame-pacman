@@ -1,9 +1,8 @@
 import time
-import pygame
 
 from cell_map import CellMap
-from direction import Direction
-from movable_entity import MovableEntity
+from entities.movable_entity import MovableEntity
+from enums.direction import Direction
 from utils.file_utils import FileUtils
 from utils.time_utils import TimeUtils
 

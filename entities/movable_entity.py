@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from cell import Cell
+from enums.cell import Cell
 from cell_map import CellMap
-from direction import Direction
+from enums.direction import Direction
 
 
 class MovableEntity(pygame.sprite.Sprite, ABC):
@@ -23,7 +23,6 @@ class MovableEntity(pygame.sprite.Sprite, ABC):
         self.cell = None
         self.rect = None
         self.direction = None
-        self._active = False
         self._speed = 0
         self._moving = False
         self._move_start_time = None
@@ -34,7 +33,6 @@ class MovableEntity(pygame.sprite.Sprite, ABC):
         screen.blit(self.image, self.rect)
 
     def reset(self):
-        self._active = False
         self._moving = False
         self._move_start_time = None
         self._last_icon_update = None

@@ -3,10 +3,11 @@ import time
 import pygame
 
 from cell_map import CellMap
-from game_states import GameStates
+from enums.game_states import GameState
+from enums.ghost_mode import GhostMode
 from level import Level
 from managers.ghosts_manager import GhostsManager
-from pacman import Pacman
+from entities.pacman import Pacman
 from managers.collectibles_manager import CollectiblesManager
 from stages.stage import Stage, StageUpdateType
 from game_info import GameInfo
@@ -35,12 +36,12 @@ class GameStage(Stage):
         self.ghosts = None
         self.pacman = None
         self.score = 0
-        self.state = GameStates.GAME_START
+        self.state = GameState.GAME_START
         self.game_info = None
         self.background = FileUtils.get_image(self.BACKGROUND_NAME)
         self.collected = 0
         self.high_score = self._get_high_score()
-        self._current_siren_id = None
+        self._current_sound = None
         self._main_channel = pygame.mixer.Channel(1)
         self._started = False
         self._state_start = None
@@ -57,9 +58,9 @@ class GameStage(Stage):
         self.game_info = GameInfo(self)
         self.score = 0
         self._started = True
-        self._current_siren_id = None
+        self._current_sound = None
         self._last_background_update = None
-        self.update_state(GameStates.GAME_START)
+        self.update_state(GameState.GAME_START)
 
     def add_score(self, score):
         self.score += score
@@ -68,13 +69,13 @@ class GameStage(Stage):
         self.state = state_type
         self._state_start = time.time()
 
-        if state_type == GameStates.GAME_START:
+        if state_type == GameState.GAME_START:
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.BEGINNING_SOUND).play()
-        elif state_type == GameStates.DEAD or state_type == GameStates.DEAD_END:
+        elif state_type == GameState.DEAD or state_type == GameState.DEAD_END:
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.DEATH_SOUND).play()
-        elif state_type == GameStates.LEVEL_END:
+        elif state_type == GameState.LEVEL_END:
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.EXTEND).play()
             self._last_background_update = time.time()
@@ -85,24 +86,29 @@ class GameStage(Stage):
             self.start_game()
         else:
             pygame.mixer.unpause()
+            self.ghosts.unpause()
+
+    def pause(self):
+        if self._started:
+            self.ghosts.pause()
 
     def update(self, events, key_pressed):
         self._handle_escape(events, key_pressed)
-        if self.state == GameStates.GAME_START and TimeUtils.time_elapsed(self._state_start) >= self.START_DELAY:
-            self.update_state(GameStates.PLAYING)
-        elif self.state == GameStates.PLAYING:
+        if self.state == GameState.GAME_START and TimeUtils.time_elapsed(self._state_start) >= self.START_DELAY:
+            self.update_state(GameState.PLAYING)
+        elif self.state == GameState.PLAYING:
             self._update_sound()
             self.collectibles.update()
             self.pacman.update(key_pressed)
             self.ghosts.update()
-        elif self.state == GameStates.DEAD and TimeUtils.time_elapsed(self._state_start) >= self.PACMAN_DEAD_TIME:
+        elif self.state == GameState.DEAD and TimeUtils.time_elapsed(self._state_start) >= self.PACMAN_DEAD_TIME:
             self.pacman.lives -= 1
             self.pacman.reset()
             self.ghosts.reset()
-            self.update_state(GameStates.GAME_START)
-        elif self.state == GameStates.DEAD_END and TimeUtils.time_elapsed(self._state_start) >= self.PACMAN_DEAD_TIME:
+            self.update_state(GameState.GAME_START)
+        elif self.state == GameState.DEAD_END and TimeUtils.time_elapsed(self._state_start) >= self.PACMAN_DEAD_TIME:
             self.notify(StageUpdateType.START_MENU)
-        elif self.state == GameStates.LEVEL_END:
+        elif self.state == GameState.LEVEL_END:
             time_elapsed = TimeUtils.time_elapsed(self._state_start)
             if self.LEVEL_END_FULL_TIME > time_elapsed >= self.LEVEL_END_MUSIC_TIME:
                 self._animate_background()
@@ -122,11 +128,15 @@ class GameStage(Stage):
         self.notify(StageUpdateType.START_MENU)
 
     def _update_sound(self):
-        siren_id = self._get_siren_id()
-        if not self._main_channel.get_busy() or self._current_siren_id != siren_id:
+        if self.ghosts.mode == GhostMode.FRIGHTENED:
+            sound = AudioUtils.get_sound(AudioUtils.POWER_PELLET)
+        else:
+            sound = AudioUtils.get_sound(AudioUtils.SIRENS[self._get_siren_id()])
+
+        if not self._main_channel.get_busy() or self._current_sound != sound:
             self._main_channel.stop()
-            self._main_channel.play(AudioUtils.get_sound(AudioUtils.SIRENS[siren_id]), loops=-1)
-            self._current_siren_id = siren_id
+            self._main_channel.play(sound, loops=-1)
+            self._current_sound = sound
 
     def _get_siren_id(self):
         percent_collected = self.collected / CellMap.get_instance().count * 100
@@ -150,7 +160,7 @@ class GameStage(Stage):
         self.pacman.render(screen)
         self.game_info.render(screen)
 
-        if self.state != GameStates.LEVEL_END:
+        if self.state != GameState.LEVEL_END:
             self.ghosts.render(screen)
 
     def _render_background(self, screen):

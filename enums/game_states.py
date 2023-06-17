@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class GameStates(Enum):
+class GameState(Enum):
     GAME_START = 1
     PLAYING = 2
     DEAD = 3

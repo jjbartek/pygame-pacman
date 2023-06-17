@@ -31,3 +31,6 @@ class Stage(ABC):
 
     def start_stage(self, update_type):
         pass
+
+    def pause(self):
+        pass
