@@ -13,3 +13,6 @@ class Blinky(Ghost):
 
     def _get_chase_cell(self):
         return self.manager.game.pacman.cell
+
+    def _can_go_through_gate(self):
+        return False

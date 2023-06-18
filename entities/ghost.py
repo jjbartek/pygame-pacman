@@ -113,15 +113,13 @@ class Ghost(MovableEntity, ABC):
             self._slow_movement(speed)
 
     def _get_speed(self):
+        speed = self._speed
         if self.state == GhostState.DEAD:
             speed = self.DEAD_SPEED
         elif self.manager.mode == GhostMode.FRIGHTENED and not self._already_died:
             speed = self.FRIGHTENED_SPEED
         elif self._target_cell and self._target_cell in self.SLOW_CELLS:
             speed = self._speed * 1.5
-
-        else:
-            speed = self._speed
 
         return speed
 
@@ -132,6 +130,7 @@ class Ghost(MovableEntity, ABC):
     def reset_dead(self):
         self._already_died = False
         self._last_icon_update = None
+        self._icon_counter = 0
 
     def _update_ghost(self):
         if self.state == GhostState.LEAVING_HOME:
@@ -151,12 +150,16 @@ class Ghost(MovableEntity, ABC):
             self._update_ghost()
 
     def _update_active(self):
-        if self.manager.mode == GhostMode.CHASE:
-            goal = self._get_chase_cell()
-        elif self.manager.mode == GhostMode.SCATTER:
-            goal = self.scatter_cell
+        goal = None
+        if self.manager.mode == GhostMode.FRIGHTENED and self._already_died:
+            mode = self.manager.previous_mode
         else:
-            goal = None
+            mode = self.manager.mode
+
+        if mode == GhostMode.SCATTER:
+            goal = self.scatter_cell
+        elif mode == GhostMode.CHASE:
+            goal = self._get_chase_cell()
 
         self.goal_cell = goal
 
@@ -299,7 +302,7 @@ class Ghost(MovableEntity, ABC):
 
     def _can_move_to_cell(self, direction, next_cell):
         is_walkable = self.is_cell_walkable(next_cell)
-        can_move_up = not (direction == Direction.UP and self._next_cell in self.NO_MOVE_UP_CELLS)
+        can_move_up = not (direction == Direction.UP and self._target_cell in self.NO_MOVE_UP_CELLS)
         is_not_backward = not (self.direction and direction == self.REVERSE.get(self.direction))
 
         return is_walkable and can_move_up and is_not_backward
@@ -334,10 +337,13 @@ class Ghost(MovableEntity, ABC):
             return False
 
         cell_type = CellMap.get_instance().get_cell_type(cell)
-        if self.state in [GhostState.LEAVING_HOME, GhostState.DEAD]:
+        if self._can_go_through_gate():
             return cell_type in [Cell.SPACE, Cell.TUNNEL, Cell.SPACE_GATE]
         else:
             return cell_type in [Cell.SPACE, Cell.TUNNEL]
+
+    def _can_go_through_gate(self):
+        return self.state in [GhostState.LEAVING_HOME, GhostState.DEAD]
 
     def render(self, screen):
         super().render(screen)

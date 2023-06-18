@@ -22,6 +22,7 @@ class GhostsManager:
         self.inky = Inky(self)
         self.clyde = Clyde(self)
         self._mode_start_time = time.time()
+        self.previous_mode = None
         self._channel = pygame.mixer.Channel(3)
         self._elapsed_since_start = None
 
@@ -37,18 +38,21 @@ class GhostsManager:
 
     def update(self):
         if self.mode == GhostMode.FRIGHTENED and TimeUtils.time_elapsed(self._mode_start_time) > self.FRIGHTENED_TIME:
-            self.update_mode(GhostMode.CHASE)
+            self.update_mode(self.previous_mode)
 
         for ghost in self.group:
             ghost.update()
 
     def update_mode(self, mode):
+        if self.mode != mode:
+            self.previous_mode = self.mode
+
+        self.mode = mode
         for ghost in self.group:
-            if mode != self.mode and self.mode != GhostMode.FRIGHTENED:
+            if self.previous_mode != self.mode and self.previous_mode != GhostMode.FRIGHTENED:
                 ghost.reverse_direction()
             ghost.reset_dead()
 
-        self.mode = mode
         self._mode_start_time = time.time()
 
     def render(self, screen):
