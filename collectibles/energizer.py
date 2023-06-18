@@ -18,7 +18,7 @@ class Energizer(Collectible):
         self._last_icon_update = time.time()
 
     def update(self):
-        if TimeUtils.time_elapsed(self._last_icon_update) >= self.UPDATE_TIME:
+        if TimeUtils.elapsed(self._last_icon_update) >= self.UPDATE_TIME:
             self.image = self._get_next_icon()
             self._last_icon_update = time.time()
 

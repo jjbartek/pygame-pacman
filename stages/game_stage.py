@@ -23,6 +23,7 @@ class GameStage(Stage):
     MIN_LEVEL = 1
     MAX_LEVEL = 1
     PACMAN_DEAD_TIME = 2500
+    GHOST_DEAD_TIME = 500
     LEVEL_END_MUSIC_TIME = 2000
     LEVEL_END_FULL_TIME = 4000
     BACKGROUND_UPDATE_TIME = 150
@@ -46,6 +47,7 @@ class GameStage(Stage):
         self._started = False
         self._state_start = None
         self._last_background_update = None
+        self._freeze = False
 
         CellMap.get_instance()
 
@@ -60,6 +62,7 @@ class GameStage(Stage):
         self._started = True
         self._current_sound = None
         self._last_background_update = None
+        self._freeze = False
         self.update_state(GameState.GAME_START)
 
     def add_score(self, score):
@@ -75,6 +78,9 @@ class GameStage(Stage):
         elif state_type == GameState.DEAD or state_type == GameState.DEAD_END:
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.DEATH_SOUND).play()
+        elif state_type == GameState.GHOST_DEAD:
+            pygame.mixer.stop()
+            AudioUtils.get_sound(AudioUtils.EAT_GHOST_SOUND).play()
         elif state_type == GameState.LEVEL_END:
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.EXTEND).play()
@@ -94,22 +100,26 @@ class GameStage(Stage):
 
     def update(self, events, key_pressed):
         self._handle_escape(events, key_pressed)
-        if self.state == GameState.GAME_START and TimeUtils.time_elapsed(self._state_start) >= self.START_DELAY:
+        time_elapsed = TimeUtils.elapsed(self._state_start)
+
+        if self.state == GameState.GAME_START and time_elapsed >= self.START_DELAY:
             self.update_state(GameState.PLAYING)
         elif self.state == GameState.PLAYING:
             self._update_sound()
             self.collectibles.update()
             self.pacman.update(key_pressed)
             self.ghosts.update()
-        elif self.state == GameState.DEAD and TimeUtils.time_elapsed(self._state_start) >= self.PACMAN_DEAD_TIME:
+        elif self.state == GameState.GHOST_DEAD and time_elapsed >= self.GHOST_DEAD_TIME:
+            self.update_state(GameState.PLAYING)
+            self.ghosts.unpause()
+        elif self.state == GameState.DEAD and time_elapsed >= self.PACMAN_DEAD_TIME:
             self.pacman.lives -= 1
             self.pacman.reset()
             self.ghosts.reset()
             self.update_state(GameState.GAME_START)
-        elif self.state == GameState.DEAD_END and TimeUtils.time_elapsed(self._state_start) >= self.PACMAN_DEAD_TIME:
+        elif self.state == GameState.DEAD_END and time_elapsed >= self.PACMAN_DEAD_TIME:
             self.notify(StageUpdateType.START_MENU)
         elif self.state == GameState.LEVEL_END:
-            time_elapsed = TimeUtils.time_elapsed(self._state_start)
             if self.LEVEL_END_FULL_TIME > time_elapsed >= self.LEVEL_END_MUSIC_TIME:
                 self._animate_background()
             elif time_elapsed >= self.LEVEL_END_FULL_TIME:
@@ -117,7 +127,7 @@ class GameStage(Stage):
                 self._next_level()
 
     def _animate_background(self):
-        if TimeUtils.time_elapsed(self._last_background_update) >= self.BACKGROUND_UPDATE_TIME:
+        if TimeUtils.elapsed(self._last_background_update) >= self.BACKGROUND_UPDATE_TIME:
             if self.background == FileUtils.get_image(self.BACKGROUND_NAME):
                 self.background = FileUtils.get_image(self.BACKGROUND_NAME_WHITE)
             else:
@@ -128,7 +138,7 @@ class GameStage(Stage):
         self.notify(StageUpdateType.START_MENU)
 
     def _update_sound(self):
-        if self.ghosts.mode == GhostMode.FRIGHTENED:
+        if self.ghosts.current_mode == GhostMode.FRIGHTENED:
             sound = AudioUtils.get_sound(AudioUtils.POWER_PELLET)
         else:
             sound = AudioUtils.get_sound(AudioUtils.SIRENS[self._get_siren_id()])
@@ -139,14 +149,16 @@ class GameStage(Stage):
             self._current_sound = sound
 
     def _get_siren_id(self):
-        percent_collected = self.collected / CellMap.get_instance().count * 100
-        siren_id = None
+        percent_collected = self.get_percent_collected()
         if percent_collected < 50:
             siren_id = 0
         else:
             siren_id = 1
 
         return siren_id
+
+    def get_percent_collected(self):
+        return self.collected / CellMap.get_instance().count * 100
 
     def _handle_escape(self, events, key_pressed):
         for event in events:

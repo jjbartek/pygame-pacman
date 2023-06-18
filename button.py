@@ -34,7 +34,7 @@ class Button(pygame.sprite.Sprite):
                 AudioUtils.get_sound(AudioUtils.BUTTON_SOUND).play()
                 self._on_click()
 
-        if TimeUtils.time_elapsed(self._timer) >= self.BUTTON_CHECK_TIME:
+        if TimeUtils.elapsed(self._timer) >= self.BUTTON_CHECK_TIME:
             if self.rect.collidepoint(mouse_position):
                 self._current_image = self.hover_image
             else:

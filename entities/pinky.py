@@ -4,7 +4,6 @@ from entities.ghost import Ghost
 
 
 class Pinky(Ghost):
-    NAME = "pinky"
     START_CELL = (13.5, 17)
     START_REAL_CELL = (13, 17)
     SCATTER_CELL = (1, 0)
@@ -18,7 +17,7 @@ class Pinky(Ghost):
     }
 
     def __init__(self, manager):
-        super().__init__(self.NAME, self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
+        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
 
     def _get_chase_cell(self):
         pacman_x, pacman_y = self.manager.game.pacman.cell

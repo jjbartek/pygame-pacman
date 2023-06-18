@@ -4,7 +4,6 @@ from entities.ghost import Ghost
 
 
 class Inky(Ghost):
-    NAME = "inky"
     START_CELL = (11.5, 17)
     START_REAL_CELL = (12, 17)
     SCATTER_CELL = (26, 35)
@@ -18,7 +17,7 @@ class Inky(Ghost):
     }
 
     def __init__(self, manager):
-        super().__init__(self.NAME, self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
+        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
 
     def _get_chase_cell(self):
         blinky_x, blinky_y = self.manager.blinky.cell

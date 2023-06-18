@@ -2,7 +2,6 @@ from entities.ghost import Ghost
 
 
 class Clyde(Ghost):
-    NAME = "clyde"
     START_CELL = (15.5, 17)
     START_REAL_CELL = (15, 17)
     SCATTER_CELL = (0, 35)
@@ -10,7 +9,7 @@ class Clyde(Ghost):
     MAX_DISTANCE = 8
 
     def __init__(self, manager):
-        super().__init__(self.NAME, self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
+        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
 
     def _get_chase_cell(self):
         if self._is_in_pacman_range():

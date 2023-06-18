@@ -47,9 +47,8 @@ class Ghost(MovableEntity, ABC):
         Direction.RIGHT: Direction.LEFT
     }
 
-    def __init__(self, name, start_cell, start_real_cell, scatter_cell, color, manager):
+    def __init__(self, start_cell, start_real_cell, scatter_cell, color, manager):
         super().__init__()
-        self.name = name
         self.start_cell = start_cell
         self.start_real_cell = start_real_cell
         self.manager = manager
@@ -116,7 +115,7 @@ class Ghost(MovableEntity, ABC):
         speed = self._speed
         if self.state == GhostState.DEAD:
             speed = self.DEAD_SPEED
-        elif self.manager.mode == GhostMode.FRIGHTENED and not self._already_died:
+        elif self.manager.current_mode == GhostMode.FRIGHTENED and not self._already_died:
             speed = self.FRIGHTENED_SPEED
         elif self._target_cell and self._target_cell in self.SLOW_CELLS:
             speed = self._speed * 1.5
@@ -151,10 +150,10 @@ class Ghost(MovableEntity, ABC):
 
     def _update_active(self):
         goal = None
-        if self.manager.mode == GhostMode.FRIGHTENED and self._already_died:
+        if self.manager.current_mode == GhostMode.FRIGHTENED and self._already_died:
             mode = self.manager.previous_mode
         else:
-            mode = self.manager.mode
+            mode = self.manager.current_mode
 
         if mode == GhostMode.SCATTER:
             goal = self.scatter_cell
@@ -197,25 +196,20 @@ class Ghost(MovableEntity, ABC):
             if self._can_die():
                 self.state = GhostState.DEAD
                 self._reverse_direction = True
+                self.manager.handle_ghost_dead()
             elif self._can_kill():
-                self._handle_pacman_dead()
+                self.manager.handle_pacman_dead()
 
     def _can_die(self):
-        is_frightened = self.manager.mode == GhostMode.FRIGHTENED
+        is_frightened = self.manager.current_mode == GhostMode.FRIGHTENED
         is_not_dead = not self.state == GhostState.DEAD
         return is_frightened and not self._already_died and is_not_dead
 
     def _can_kill(self):
         is_not_dead = not self.state == GhostState.DEAD
-        chase_or_scatter = self.manager.mode in [GhostMode.CHASE, GhostMode.SCATTER]
+        chase_or_scatter = self.manager.current_mode in [GhostMode.CHASE, GhostMode.SCATTER]
         already_dead = self._already_died
         return is_not_dead and (chase_or_scatter or already_dead)
-
-    def _handle_pacman_dead(self):
-        if self.manager.game.pacman.lives > 1:
-            self.manager.game.update_state(GameState.DEAD)
-        else:
-            self.manager.game.update_state(GameState.DEAD_END)
 
     def _collides(self, center):
         self_x, self_y = self.rect.center
@@ -309,23 +303,27 @@ class Ghost(MovableEntity, ABC):
 
     def _get_icon_name(self):
         if self._can_show_frightened_icon():
-            icon_id = self._icon_counter + 1
-            if self._last_icon_update is None:
-                self._last_icon_update = time.time()
-            if self._last_icon_update and TimeUtils.time_elapsed(self._last_icon_update) >= self.GHOST_FRIGHT_ICON_TIME:
-                self._icon_counter = (self._icon_counter + 1) % self.GHOST_FRIGHT_ICONS
-                self._last_icon_update = time.time()
-            icon = f"ghost-vulnerable-{icon_id}"
+            if self.manager.should_animate_icon():
+                icon_id = self._icon_counter + 1
+                if self._last_icon_update is None:
+                    self._last_icon_update = time.time()
+                elif TimeUtils.elapsed(self._last_icon_update) >= self.GHOST_FRIGHT_ICON_TIME:
+                    self._icon_counter = (self._icon_counter + 1) % self.GHOST_FRIGHT_ICONS
+                    self._last_icon_update = time.time()
+
+                icon = f"ghost-vulnerable-{icon_id}"
+            else:
+                icon = f"ghost-vulnerable-1"
         else:
             direction = self.direction if self.direction else self.DEFAULT_DIRECTION
             direction_in_lowercase = direction.name.lower()
-            name = "dead" if self.state == GhostState.DEAD else self.name
+            name = "dead" if self.state == GhostState.DEAD else self.__class__.__name__.lower()
             icon = f"ghost-{name}-{direction_in_lowercase}"
 
         return icon
 
     def _can_show_frightened_icon(self):
-        is_mode_frightened = self.manager.mode == GhostMode.FRIGHTENED
+        is_mode_frightened = self.manager.current_mode == GhostMode.FRIGHTENED
         is_not_dead = not self.state == GhostState.DEAD
         can_die = not self._already_died
         is_not_idle = self.state != GhostState.IDLE

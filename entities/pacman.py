@@ -66,7 +66,7 @@ class Pacman(MovableEntity):
             self._next_direction = None
 
     def _update_icon(self):
-        if TimeUtils.time_elapsed(self._last_icon_update) >= self.ICON_UPDATE_TIME:
+        if TimeUtils.elapsed(self._last_icon_update) >= self.ICON_UPDATE_TIME:
             self.image = FileUtils.get_image(self._get_icon_name())
             self._update_counter()
             self._last_icon_update = time.time()
