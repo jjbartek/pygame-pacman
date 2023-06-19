@@ -5,6 +5,7 @@ import pygame
 from cell_map import CellMap
 from enums.game_states import GameState
 from enums.ghost_mode import GhostMode
+from managers.fruit_manager import FruitManager
 from managers.ghost_manager import GhostManager
 from entities.pacman import Pacman
 from managers.collectibles_manager import CollectibleManager
@@ -21,7 +22,7 @@ class GameStage(Stage):
     BACKGROUND_NAME = "board"
     BACKGROUND_NAME_WHITE = "board-white"
     PACMAN_DEAD_TIME = 2500
-    GHOST_DEAD_TIME = 500
+    EAT_FREEZE_TIME = 500
     LEVEL_END_MUSIC_TIME = 2000
     LEVEL_END_FULL_TIME = 4000
     BACKGROUND_UPDATE_TIME = 150
@@ -32,6 +33,7 @@ class GameStage(Stage):
         self.collectibles = None
         self.levels = None
         self.ghosts = None
+        self.fruits = None
         self.pacman = None
         self.game_info = None
         self.score = 0
@@ -53,6 +55,7 @@ class GameStage(Stage):
         self.collectibles = CollectibleManager(self)
         self.pacman = Pacman(self)
         self.ghosts = GhostManager(self)
+        self.fruits = FruitManager(self)
         self.game_info = GameInfo(self)
         self.score = 0
         self._started = True
@@ -65,6 +68,7 @@ class GameStage(Stage):
         self.collectibles = CollectibleManager(self)
         self.pacman = Pacman(self)
         self.ghosts = GhostManager(self)
+        self.fruits = FruitManager(self)
         self._started = True
         self._current_sound = None
         self._last_background_update = None
@@ -84,9 +88,14 @@ class GameStage(Stage):
         elif state_type == GameState.DEAD or state_type == GameState.DEAD_END:
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.DEATH_SOUND).play()
-        elif state_type == GameState.GHOST_DEAD:
+        elif state_type == GameState.EAT_GHOST_FREEZE:
+            self.ghosts.pause()
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.EAT_GHOST_SOUND).play()
+        elif state_type == GameState.EAT_FRUIT_FREEZE:
+            self.ghosts.pause()
+            pygame.mixer.stop()
+            AudioUtils.get_sound(AudioUtils.EAT_FRUIT_SOUND).play()
         elif state_type == GameState.LEVEL_END:
             pygame.mixer.stop()
             AudioUtils.get_sound(AudioUtils.EXTEND).play()
@@ -117,15 +126,18 @@ class GameStage(Stage):
         elif self.state == GameState.PLAYING:
             self._update_sound()
             self.collectibles.update()
+            self.fruits.update()
             self.pacman.update(key_pressed)
             self.ghosts.update()
-        elif self.state == GameState.GHOST_DEAD and time_elapsed >= self.GHOST_DEAD_TIME:
+        elif (self.state == GameState.EAT_GHOST_FREEZE or self.state == GameState.EAT_FRUIT_FREEZE) \
+                and time_elapsed >= self.EAT_FREEZE_TIME:
             self.update_state(GameState.PLAYING)
             self.ghosts.unpause()
         elif self.state == GameState.DEAD and time_elapsed >= self.PACMAN_DEAD_TIME:
             self.pacman.lives -= 1
             self.pacman.reset()
             self.ghosts.reset()
+            self.fruits.reset()
             self.update_state(GameState.GAME_START)
         elif self.state == GameState.DEAD_END and time_elapsed >= self.PACMAN_DEAD_TIME:
             self.notify(StageUpdateType.START_MENU)
@@ -181,8 +193,9 @@ class GameStage(Stage):
         self._render_background(screen)
         self.collectibles.render(screen)
         self.game_info.render(screen)
+        self.fruits.render(screen)
 
-        if self.state != GameState.GHOST_DEAD:
+        if self.state != GameState.EAT_GHOST_FREEZE and self.state != GameState.EAT_FRUIT_FREEZE:
             self.pacman.render(screen)
 
         if self.state != GameState.LEVEL_END:

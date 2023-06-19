@@ -1,3 +1,4 @@
+from fruits.cherry import Cherry
 from level import Level
 from utils.file_utils import FileUtils
 
@@ -7,6 +8,9 @@ class LevelManager:
     LEVEL_ID_TO_FILE_NAME = {
         (1, 1): "level_1",
         (2, float('inf')): "level_2"
+    }
+    FRUIT_MAP = {
+        "cherry": Cherry
     }
 
     def __init__(self, game):
@@ -56,8 +60,11 @@ class LevelManager:
         ghost_speed_tunnel = level_data["ghost_speed_tunnel"]
         clyde_dots_to_leave = level_data["clyde_dots_to_leave"]
         inky_dots_to_leave = level_data["inky_dots_to_leave"]
-        bonus = level_data["bonus"]
-        bonus_points = level_data["bonus_points"]
+        fruits = []
+        fruit_points = level_data["fruit_points"]
+
+        for fruit in level_data["fruits"]:
+            fruits.append(cls.FRUIT_MAP.get(fruit))
 
         return Level(chase_duration,
                      scatter_duration,
@@ -75,5 +82,5 @@ class LevelManager:
                      ghost_speed_tunnel,
                      clyde_dots_to_leave,
                      inky_dots_to_leave,
-                     bonus,
-                     bonus_points)
+                     fruits,
+                     fruit_points)

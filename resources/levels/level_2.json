@@ -15,6 +15,6 @@
   "ghost_speed_tunnel": 25,
   "clyde_dots_to_leave": 20,
   "inky_dots_to_leave": 40,
-  "bonus": "cherry",
-  "bonus_points": 100
+  "fruits": ["cherry", "cherry"],
+  "fruit_points": [150, 150]
 }

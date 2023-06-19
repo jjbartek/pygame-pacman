@@ -6,6 +6,8 @@ import pygame
 class TextUtils:
     _fonts = {}
     _texts = {}
+    SCORE_SIZE = 22
+    SCORE_COLOR = (0, 255, 220)
     FONT_PATH = os.path.join(os.getcwd(), 'resources', 'emulgic.ttf')
 
     @classmethod
@@ -21,8 +23,11 @@ class TextUtils:
 
         return cls._texts[key]
 
-    @staticmethod
-    def get_sys_text(text, size, color):
+    @classmethod
+    def get_score_text(cls, score):
+        text = str(score)
+        size = cls.SCORE_SIZE
+        color = cls.SCORE_COLOR
         font = pygame.font.SysFont('Helvetica', size)
         return font.render(text, True, color)
 

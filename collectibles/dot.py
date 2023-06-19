@@ -7,5 +7,5 @@ class Dot(Collectible):
     POINTS = 10
 
     def __init__(self, position, cell):
-        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Dot.POINTS, True, cell)
+        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Dot.POINTS, cell)
         self._icon_counter = 0

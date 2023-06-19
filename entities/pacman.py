@@ -87,6 +87,7 @@ class Pacman(Entity):
 
     def _prepare_move(self, speed):
         self.game.collectibles.handle_collision(self.cell)
+        self.game.fruits.handle_collision()
 
         next_cell = CellMap.get_instance().get_next_cell(self.cell, self.direction)
         if self.is_cell_walkable(next_cell):

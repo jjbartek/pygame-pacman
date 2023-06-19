@@ -133,8 +133,7 @@ class GhostManager:
         score = self.GHOST_DEAD_SCORE * (2 ** (self._dead_ghosts_counter - 1))
         ghost.set_dead_text(score)
         self.game.add_score(score)
-        self.pause()
-        self.game.update_state(GameState.GHOST_DEAD)
+        self.game.update_state(GameState.EAT_GHOST_FREEZE)
 
     def handle_pacman_dead(self):
         if self.game.pacman.lives > 1:

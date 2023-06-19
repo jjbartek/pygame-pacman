@@ -13,7 +13,7 @@ class Energizer(Collectible):
     UPDATE_TIME = 200
 
     def __init__(self, position, cell):
-        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Energizer.POINTS, True, cell)
+        super().__init__(FileUtils.get_image(self.ICON_NAME), position, Energizer.POINTS, cell)
         self._icon_counter = 0
         self._last_icon_update = time.time()
 

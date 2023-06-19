@@ -23,8 +23,6 @@ class Ghost(Entity, ABC):
     DEFAULT_DIRECTION = Direction.UP
     GHOST_FRIGHT_ICONS = 2
     FIRST_CELL = (13, 14)
-    DEAD_TEXT_SIZE = 22
-    DEAD_TEXT_COLOR = (0, 255, 220)
     COLLISION_OFFSET = 8
 
     NO_MOVE_UP_CELLS = [
@@ -197,7 +195,7 @@ class Ghost(Entity, ABC):
         pass
 
     def set_dead_text(self, score):
-        self._dead_text = TextUtils.get_sys_text(str(score), self.DEAD_TEXT_SIZE, self.DEAD_TEXT_COLOR)
+        self._dead_text = TextUtils.get_score_text(score)
 
     def _handle_collision(self):
         if self._collides(self.manager.game.pacman.rect.center):
@@ -353,7 +351,7 @@ class Ghost(Entity, ABC):
 
     def render(self, screen):
         self._render_hint(screen)
-        if self.manager.game.state == GameState.GHOST_DEAD and self._dead_text:
+        if self.manager.game.state == GameState.EAT_GHOST_FREEZE and self._dead_text:
             position = CellMap.get_cell_position(self.cell)
             screen.blit(self._dead_text, self._dead_text.get_rect(center=position))
         else:
