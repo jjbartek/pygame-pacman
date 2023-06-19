@@ -32,6 +32,7 @@ class Game:
         self.stage_map = {
             StageUpdateType.START_MENU: self.start_menu_stage,
             StageUpdateType.RESTART: self.game_stage,
+            StageUpdateType.NEXT_LEVEL: self.game_stage,
             StageUpdateType.CONTINUE: self.game_stage,
             StageUpdateType.PAUSE: self.pause_menu_stage,
             StageUpdateType.QUIT: None,

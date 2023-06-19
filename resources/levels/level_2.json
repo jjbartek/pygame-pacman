@@ -1,0 +1,20 @@
+{
+  "chase_duration": [20, 20, 20, 1033, null],
+  "scatter_duration": [7, 7, 5, 0.16],
+  "fright_duration": 5,
+  "elroy_1_dots": 20,
+  "elroy_1_speed": 80,
+  "elroy_2_dots": 10,
+  "elroy_2_speed": 85,
+  "pacman_speed_normal": 80,
+  "pacman_dots_normal": 76,
+  "pacman_speed_fright": 95,
+  "pacman_dots_fright": 91,
+  "ghost_speed_normal": 75,
+  "ghost_speed_fright": 50,
+  "ghost_speed_tunnel": 25,
+  "clyde_dots_to_leave": 20,
+  "inky_dots_to_leave": 40,
+  "bonus": "cherry",
+  "bonus_points": 100
+}

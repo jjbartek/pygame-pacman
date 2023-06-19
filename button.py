@@ -21,7 +21,7 @@ class Button(pygame.sprite.Sprite):
         self.position = position
         self.image = FileUtils.get_image(self.BUTTON_IMAGE)
         self.hover_image = FileUtils.get_image(self.BUTTON_HOVER_IMAGE)
-        self.text = TextUtils.get_text(name, self.BUTTON_TEXT_SIZE, self.BUTTON_TEXT_COLOR)
+        self.text = TextUtils.get_standard_text(name, self.BUTTON_TEXT_SIZE, self.BUTTON_TEXT_COLOR)
         self._current_image = self.image
         self.rect = self._current_image.get_rect(center=self.position)
         self._on_click = on_click

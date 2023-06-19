@@ -10,20 +10,21 @@ from cell_map import CellMap
 from enums.direction import Direction
 from enums.game_states import GameState
 from enums.ghost_mode import GhostMode
-from entities.movable_entity import MovableEntity
+from entities.entity import Entity
 from enums.ghost_state import GhostState
 from utils.file_utils import FileUtils
+from utils.text_utils import TextUtils
 from utils.time_utils import TimeUtils
 
 
-class Ghost(MovableEntity, ABC):
-    DEFAULT_GHOST_MOVE_TIME = 160
+class Ghost(Entity, ABC):
     GHOST_FRIGHT_ICON_TIME = 300
-    DEAD_SPEED = 60
-    FRIGHTENED_SPEED = 350
+    DEAD_SPEED_PERCENT = 190
     DEFAULT_DIRECTION = Direction.UP
     GHOST_FRIGHT_ICONS = 2
     FIRST_CELL = (13, 14)
+    DEAD_TEXT_SIZE = 22
+    DEAD_TEXT_COLOR = (0, 255, 220)
     COLLISION_OFFSET = 8
 
     NO_MOVE_UP_CELLS = [
@@ -47,10 +48,11 @@ class Ghost(MovableEntity, ABC):
         Direction.RIGHT: Direction.LEFT
     }
 
-    def __init__(self, start_cell, start_real_cell, scatter_cell, color, manager):
+    def __init__(self, start_cell, start_real_cell, scatter_cell, color, dots_after_death, manager):
         super().__init__()
         self.start_cell = start_cell
         self.start_real_cell = start_real_cell
+        self.dots_after_death = dots_after_death
         self.manager = manager
         self.color = color
         self.scatter_cell = scatter_cell
@@ -59,7 +61,6 @@ class Ghost(MovableEntity, ABC):
         self.image = None
         self.direction = None
         self.goal_cell = None
-        self._speed = None
         self._next_cell = None
         self._next_direction = None
         self._reverse_direction = False
@@ -67,6 +68,7 @@ class Ghost(MovableEntity, ABC):
         self._already_died = False
         self._icon_counter = 0
         self._last_icon_update = None
+        self._dead_text = None
 
         self.reset()
 
@@ -77,7 +79,6 @@ class Ghost(MovableEntity, ABC):
         self.goal_cell = None
         self.cell = self.start_cell
         self.state = GhostState.IDLE
-        self._speed = self.DEFAULT_GHOST_MOVE_TIME
         self._next_cell = None
         self._next_direction = None
         self._previous_cell = None
@@ -85,42 +86,42 @@ class Ghost(MovableEntity, ABC):
         self._already_died = False
         self._icon_counter = 0
         self._last_icon_update = None
+        self._dead_text = None
         self.image = FileUtils.get_image(self._get_icon_name())
 
         self._update_position(CellMap.get_cell_position(self.cell))
 
     def update(self):
+        if self.state == GhostState.DEAD:
+            self._dead_text = None
+
         if self.state != GhostState.IDLE:
             self._move()
             self.image = FileUtils.get_image(self._get_icon_name())
             self._handle_collision()
 
-    def _move(self):
-        speed = self._get_speed()
+    def _prepare_move(self, speed):
+        self._update_ghost()
+        self._handle_reverse_direction()
 
-        if self._moving:
-            self._slow_movement(speed)
-        else:
-            self._update_ghost()
-            self._handle_reverse_direction()
-
-            self.direction = self._next_direction
-            self._target_cell = self._next_cell
-            self._move_start_time = time.time()
-            self._assign_next_move()
-            self._moving = True
-            self._slow_movement(speed)
+        self.direction = self._next_direction
+        self._target_cell = self._next_cell
+        self._move_start_time = time.time()
+        self._assign_next_move()
+        self._moving = True
+        self._animated_movement(speed)
 
     def _get_speed(self):
-        speed = self._speed
         if self.state == GhostState.DEAD:
-            speed = self.DEAD_SPEED
+            speed_percent = self.DEAD_SPEED_PERCENT
         elif self.manager.current_mode == GhostMode.FRIGHTENED and not self._already_died:
-            speed = self.FRIGHTENED_SPEED
+            speed_percent = self.manager.game.levels.current.ghost_speed_fright
         elif self._target_cell and self._target_cell in self.SLOW_CELLS:
-            speed = self._speed * 1.5
+            speed_percent = self.manager.game.levels.current.ghost_speed_tunnel
+        else:
+            speed_percent = self.manager.game.levels.current.ghost_speed_normal
 
-        return speed
+        return self._get_speed_by_percent(speed_percent)
 
     def reverse_direction(self):
         if self.state != GhostState.IDLE or self.state != GhostState.DEAD:
@@ -191,12 +192,19 @@ class Ghost(MovableEntity, ABC):
     def _get_chase_cell(self):
         pass
 
+    @abstractmethod
+    def get_dots_to_leave(self):
+        pass
+
+    def set_dead_text(self, score):
+        self._dead_text = TextUtils.get_sys_text(str(score), self.DEAD_TEXT_SIZE, self.DEAD_TEXT_COLOR)
+
     def _handle_collision(self):
         if self._collides(self.manager.game.pacman.rect.center):
             if self._can_die():
                 self.state = GhostState.DEAD
                 self._reverse_direction = True
-                self.manager.handle_ghost_dead()
+                self.manager.handle_ghost_dead(self)
             elif self._can_kill():
                 self.manager.handle_pacman_dead()
 
@@ -253,7 +261,7 @@ class Ghost(MovableEntity, ABC):
 
         return direction
 
-    def _slow_movement(self, speed):
+    def _animated_movement(self, speed):
         time_elapsed = self._time_elapsed_since_move_start()
         if time_elapsed <= speed:
             position = self._get_transition_position(time_elapsed, speed)
@@ -344,8 +352,12 @@ class Ghost(MovableEntity, ABC):
         return self.state in [GhostState.LEAVING_HOME, GhostState.DEAD]
 
     def render(self, screen):
-        super().render(screen)
         self._render_hint(screen)
+        if self.manager.game.state == GameState.GHOST_DEAD and self._dead_text:
+            position = CellMap.get_cell_position(self.cell)
+            screen.blit(self._dead_text, self._dead_text.get_rect(center=position))
+        else:
+            super().render(screen)
 
     def _render_hint(self, screen):
         if self.goal_cell is not None:

@@ -1,13 +1,14 @@
 import time
 
 from cell_map import CellMap
-from entities.movable_entity import MovableEntity
+from entities.entity import Entity
 from enums.direction import Direction
+from enums.ghost_mode import GhostMode
 from utils.file_utils import FileUtils
 from utils.time_utils import TimeUtils
 
 
-class Pacman(MovableEntity):
+class Pacman(Entity):
     _icons_loaded = False
     icons = {}
 
@@ -24,7 +25,6 @@ class Pacman(MovableEntity):
     DEFAULT_IMAGE = "pacman-open-left"
     DEFAULT_DIRECTION = Direction.LEFT
     START_CELL = (13.5, 26)
-    DEFAULT_PACMAN_MOVE_TIME = 140  # milliseconds per cell movement
     ICON_UPDATE_TIME = 100  # milliseconds after icon is updated
     DEFAULT_LIVES = 3
 
@@ -35,6 +35,7 @@ class Pacman(MovableEntity):
         self._next_direction = None
         self._icon_counter = 0
         self.lives = self.DEFAULT_LIVES
+        self.is_eating = False
         self.game = game
 
         self.reset()
@@ -43,7 +44,6 @@ class Pacman(MovableEntity):
         super().reset()
         self.image = FileUtils.get_image(self.DEFAULT_IMAGE)
         self.direction = self.DEFAULT_DIRECTION
-        self._speed = self.DEFAULT_PACMAN_MOVE_TIME
 
         self.cell = self.START_CELL
         self._update_position(CellMap.get_cell_position(self.cell))
@@ -85,18 +85,29 @@ class Pacman(MovableEntity):
     def _update_counter(self):
         self._icon_counter = (self._icon_counter + 1) % 2
 
-    def _move(self):
-        if self._moving:
-            self._slow_movement(self._speed)
-        else:
-            self.game.collectibles.handle_collision(self.cell)
+    def _prepare_move(self, speed):
+        self.game.collectibles.handle_collision(self.cell)
 
-            next_cell = CellMap.get_instance().get_next_cell(self.cell, self.direction)
-            if self.is_cell_walkable(next_cell):
-                self._moving = True
-                self._target_cell = next_cell
-                self._move_start_time = time.time()
-                self._slow_movement(self._speed)
+        next_cell = CellMap.get_instance().get_next_cell(self.cell, self.direction)
+        if self.is_cell_walkable(next_cell):
+            self._moving = True
+            self._target_cell = next_cell
+            self._move_start_time = time.time()
+            self._animated_movement(speed)
+
+    def _get_speed(self):
+        if self.game.ghosts.current_mode == GhostMode.FRIGHTENED:
+            if self.is_eating:
+                speed_percent = self.game.levels.current.pacman_dots_fright
+            else:
+                speed_percent = self.game.levels.current.pacman_speed_fright
+        else:
+            if self.is_eating:
+                speed_percent = self.game.levels.current.pacman_dots_normal
+            else:
+                speed_percent = self.game.levels.current.pacman_speed_normal
+
+        return self._get_speed_by_percent(speed_percent)
 
     @classmethod
     def _load_icons(cls):

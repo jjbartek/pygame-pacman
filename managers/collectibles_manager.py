@@ -5,7 +5,7 @@ from enums.game_states import GameState
 from utils.audio_utils import AudioUtils
 
 
-class CollectiblesManager:
+class CollectibleManager:
     def __init__(self, game):
         self.group = pygame.sprite.Group()
         self.game = game
@@ -37,6 +37,7 @@ class CollectiblesManager:
                 collectible.on_collect(self.game)
                 collectible.kill()
 
+        self.game.pacman.is_eating = collision
         if not collision:
             self._eat_channel.stop()
 
@@ -44,6 +45,8 @@ class CollectiblesManager:
         self.collected += 1
         if self.collected >= CellMap.get_instance().count:
             self.game.update_state(GameState.LEVEL_END)
+        else:
+            self.game.ghosts.update_counter()
 
     def _load(self):
         all_collectibles = CellMap.get_instance().collectibles

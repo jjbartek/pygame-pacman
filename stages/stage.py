@@ -6,8 +6,9 @@ class StageUpdateType(Enum):
     START_MENU = 1
     PAUSE = 2
     CONTINUE = 3
-    RESTART = 4
-    QUIT = 10
+    NEXT_LEVEL = 4
+    RESTART = 5
+    QUIT = 6
 
 
 class Stage(ABC):

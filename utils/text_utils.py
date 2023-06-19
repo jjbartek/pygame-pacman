@@ -9,7 +9,7 @@ class TextUtils:
     FONT_PATH = os.path.join(os.getcwd(), 'resources', 'emulgic.ttf')
 
     @classmethod
-    def get_text(cls, text, size, color, cache=True):
+    def get_standard_text(cls, text, size, color, cache=True):
         if not cache:
             font = cls._get_font(size)
             return font.render(text, True, color)
@@ -20,6 +20,11 @@ class TextUtils:
             cls._texts[key] = font.render(text, True, color)
 
         return cls._texts[key]
+
+    @staticmethod
+    def get_sys_text(text, size, color):
+        font = pygame.font.SysFont('Helvetica', size)
+        return font.render(text, True, color)
 
     @classmethod
     def _get_font(cls, size):

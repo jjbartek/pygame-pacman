@@ -25,10 +25,10 @@ class GameInfo:
 
     def __init__(self, game):
         self.game = game
-        self.start_text = TextUtils.get_text(self.START_TEXT, self.MIDDLE_TEXT_SIZE, self.YELLOW)
-        self.end_text = TextUtils.get_text(self.END_TEXT, self.MIDDLE_TEXT_SIZE, self.RED)
-        self.score_title = TextUtils.get_text(self.SCORE_TITLE, self.TOP_TEXT_SIZE, self.WHITE)
-        self.high_score_title = TextUtils.get_text(self.HIGH_SCORE_TEXT, self.TOP_TEXT_SIZE, self.WHITE)
+        self.start_text = TextUtils.get_standard_text(self.START_TEXT, self.MIDDLE_TEXT_SIZE, self.YELLOW)
+        self.end_text = TextUtils.get_standard_text(self.END_TEXT, self.MIDDLE_TEXT_SIZE, self.RED)
+        self.score_title = TextUtils.get_standard_text(self.SCORE_TITLE, self.TOP_TEXT_SIZE, self.WHITE)
+        self.high_score_title = TextUtils.get_standard_text(self.HIGH_SCORE_TEXT, self.TOP_TEXT_SIZE, self.WHITE)
 
     def render(self, screen):
         self._render_lives(screen)
@@ -37,7 +37,7 @@ class GameInfo:
         self._render_high_score(screen)
 
     def _render_score(self, screen):
-        score_value = TextUtils.get_text(str(self.game.score), self.TOP_TEXT_SIZE, self.WHITE, cache=False)
+        score_value = TextUtils.get_standard_text(str(self.game.score), self.TOP_TEXT_SIZE, self.WHITE, cache=False)
         title_position = CellMap.get_cell_position(self.SCORE_TITLE_POS)
         score_position = CellMap.get_cell_position(self.SCORE_POS)
         screen.blit(self.score_title, self.score_title.get_rect(center=title_position))
@@ -45,7 +45,7 @@ class GameInfo:
 
     def _render_high_score(self, screen):
         highest_score = max(self.game.score, self.game.high_score)
-        score_value = TextUtils.get_text(str(highest_score), self.TOP_TEXT_SIZE, self.WHITE, cache=False)
+        score_value = TextUtils.get_standard_text(str(highest_score), self.TOP_TEXT_SIZE, self.WHITE, cache=False)
         title_position = CellMap.get_cell_position(self.HIGH_SCORE_TITLE_POS)
         score_position = CellMap.get_cell_position(self.HIGH_SCORE_POS)
         screen.blit(self.high_score_title, self.high_score_title.get_rect(center=title_position))

@@ -5,10 +5,10 @@ import pygame
 from cell_map import CellMap
 from enums.game_states import GameState
 from enums.ghost_mode import GhostMode
-from level import Level
-from managers.ghosts_manager import GhostsManager
+from managers.ghost_manager import GhostManager
 from entities.pacman import Pacman
-from managers.collectibles_manager import CollectiblesManager
+from managers.collectibles_manager import CollectibleManager
+from managers.level_manager import LevelManager
 from stages.stage import Stage, StageUpdateType
 from game_info import GameInfo
 from utils.audio_utils import AudioUtils
@@ -20,8 +20,6 @@ class GameStage(Stage):
     BACKGROUND_CORDS = (0, 0)
     BACKGROUND_NAME = "board"
     BACKGROUND_NAME_WHITE = "board-white"
-    MIN_LEVEL = 1
-    MAX_LEVEL = 1
     PACMAN_DEAD_TIME = 2500
     GHOST_DEAD_TIME = 500
     LEVEL_END_MUSIC_TIME = 2000
@@ -31,16 +29,15 @@ class GameStage(Stage):
 
     def __init__(self):
         super().__init__()
-        self.level_id = 0
-        self.level = None
         self.collectibles = None
+        self.levels = None
         self.ghosts = None
         self.pacman = None
-        self.score = 0
-        self.state = GameState.GAME_START
         self.game_info = None
-        self.background = FileUtils.get_image(self.BACKGROUND_NAME)
+        self.score = 0
         self.collected = 0
+        self.state = GameState.GAME_START
+        self.background = FileUtils.get_image(self.BACKGROUND_NAME)
         self.high_score = self._get_high_score()
         self._current_sound = None
         self._main_channel = pygame.mixer.Channel(1)
@@ -52,13 +49,22 @@ class GameStage(Stage):
         CellMap.get_instance()
 
     def start_game(self):
-        self.level_id = self.MIN_LEVEL
-        self.level = Level(self)
-        self.collectibles = CollectiblesManager(self)
+        self.levels = LevelManager(self)
+        self.collectibles = CollectibleManager(self)
         self.pacman = Pacman(self)
-        self.ghosts = GhostsManager(self)
+        self.ghosts = GhostManager(self)
         self.game_info = GameInfo(self)
         self.score = 0
+        self._started = True
+        self._current_sound = None
+        self._last_background_update = None
+        self._freeze = False
+        self.update_state(GameState.GAME_START)
+
+    def level_reset(self):
+        self.collectibles = CollectibleManager(self)
+        self.pacman = Pacman(self)
+        self.ghosts = GhostManager(self)
         self._started = True
         self._current_sound = None
         self._last_background_update = None
@@ -90,6 +96,9 @@ class GameStage(Stage):
         if update_type == StageUpdateType.RESTART or not self._started:
             self.save_high_score()
             self.start_game()
+        elif update_type == StageUpdateType.NEXT_LEVEL:
+            pygame.mixer.stop()
+            self.level_reset()
         else:
             pygame.mixer.unpause()
             self.ghosts.unpause()
@@ -103,6 +112,7 @@ class GameStage(Stage):
         time_elapsed = TimeUtils.elapsed(self._state_start)
 
         if self.state == GameState.GAME_START and time_elapsed >= self.START_DELAY:
+            self.ghosts.reset_timer()
             self.update_state(GameState.PLAYING)
         elif self.state == GameState.PLAYING:
             self._update_sound()
@@ -135,7 +145,8 @@ class GameStage(Stage):
             self._last_background_update = time.time()
 
     def _next_level(self):
-        self.notify(StageUpdateType.START_MENU)
+        self.levels.set_next_level()
+        self.notify(StageUpdateType.NEXT_LEVEL)
 
     def _update_sound(self):
         if self.ghosts.current_mode == GhostMode.FRIGHTENED:
@@ -169,8 +180,10 @@ class GameStage(Stage):
     def render(self, screen):
         self._render_background(screen)
         self.collectibles.render(screen)
-        self.pacman.render(screen)
         self.game_info.render(screen)
+
+        if self.state != GameState.GHOST_DEAD:
+            self.pacman.render(screen)
 
         if self.state != GameState.LEVEL_END:
             self.ghosts.render(screen)

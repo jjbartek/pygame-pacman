@@ -1,3 +1,4 @@
+import json
 import os
 import pygame
 
@@ -5,6 +6,7 @@ import pygame
 class FileUtils:
     PATH_TO_RESOURCES = os.path.join(os.getcwd(), 'resources')
     PATH_TO_IMAGES = os.path.join(PATH_TO_RESOURCES, 'images')
+    PATH_TO_LEVEL_FILES = os.path.join(PATH_TO_RESOURCES, 'levels')
     STRUCTURE_FILE_NAME = "structure.txt"
     images = {}
 
@@ -34,3 +36,10 @@ class FileUtils:
             structure = f.read()
 
         return structure
+
+    @classmethod
+    def get_level_data(cls, level_name):
+        with open(os.path.join(cls.PATH_TO_LEVEL_FILES, f"{level_name}.json"), 'r') as f:
+            level_data = json.load(f)
+
+        return level_data

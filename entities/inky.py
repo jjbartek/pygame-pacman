@@ -8,6 +8,7 @@ class Inky(Ghost):
     START_REAL_CELL = (12, 17)
     SCATTER_CELL = (26, 35)
     COLOR = (0, 255, 255)
+    DOTS_AFTER_DEATH = 17
 
     PACMAN_OFFSET = {
         Direction.UP: (0, -2),
@@ -17,7 +18,8 @@ class Inky(Ghost):
     }
 
     def __init__(self, manager):
-        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
+        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, self.DOTS_AFTER_DEATH,
+                         manager)
 
     def _get_chase_cell(self):
         blinky_x, blinky_y = self.manager.blinky.cell
@@ -29,3 +31,6 @@ class Inky(Ghost):
         result = (intermediate_x - distance_blinky_x) % plane_x, (intermediate_y - distance_blinky_y) % plane_y
 
         return result
+
+    def get_dots_to_leave(self):
+        return self.manager.game.levels.current.inky_dots_to_leave

@@ -7,9 +7,11 @@ class Clyde(Ghost):
     SCATTER_CELL = (0, 35)
     COLOR = (255, 184, 82)
     MAX_DISTANCE = 8
+    DOTS_AFTER_DEATH = 32
 
     def __init__(self, manager):
-        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
+        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, self.DOTS_AFTER_DEATH,
+                         manager)
 
     def _get_chase_cell(self):
         if self._is_in_pacman_range():
@@ -25,3 +27,6 @@ class Clyde(Ghost):
 
         return pacman_x - self.MAX_DISTANCE <= self_x <= pacman_x + self.MAX_DISTANCE \
             and pacman_y - self.MAX_DISTANCE <= self_y <= pacman_y + self.MAX_DISTANCE
+
+    def get_dots_to_leave(self):
+        return self.manager.game.levels.current.clyde_dots_to_leave

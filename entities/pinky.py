@@ -8,6 +8,8 @@ class Pinky(Ghost):
     START_REAL_CELL = (13, 17)
     SCATTER_CELL = (1, 0)
     COLOR = (255, 184, 255)
+    DOTS_TO_LEAVE = 0
+    DOTS_AFTER_DEATH = 7
 
     PACMAN_OFFSET = {
         Direction.UP: (0, -4),
@@ -17,7 +19,8 @@ class Pinky(Ghost):
     }
 
     def __init__(self, manager):
-        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL, self.COLOR, manager)
+        super().__init__(self.START_CELL, self.START_REAL_CELL, self.SCATTER_CELL,
+                         self.COLOR, self.DOTS_AFTER_DEATH, manager)
 
     def _get_chase_cell(self):
         pacman_x, pacman_y = self.manager.game.pacman.cell
@@ -25,3 +28,6 @@ class Pinky(Ghost):
         plane_x_size, plane_y_size = CellMap.CELLS_PER_PLANE
 
         return (pacman_x + offset_x) % plane_x_size, (pacman_y + offset_y) % plane_y_size
+
+    def get_dots_to_leave(self):
+        return self.DOTS_TO_LEAVE

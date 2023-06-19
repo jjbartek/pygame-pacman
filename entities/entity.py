@@ -8,7 +8,8 @@ from cell_map import CellMap
 from enums.direction import Direction
 
 
-class MovableEntity(pygame.sprite.Sprite, ABC):
+class Entity(pygame.sprite.Sprite, ABC):
+    DEFAULT_SPEED = 130 # 100% of speed
     KEY_TO_DIRECTION_MAPPING = {
         pygame.K_LEFT: Direction.LEFT,
         pygame.K_RIGHT: Direction.RIGHT,
@@ -23,7 +24,6 @@ class MovableEntity(pygame.sprite.Sprite, ABC):
         self.cell = None
         self.rect = None
         self.direction = None
-        self._speed = 0
         self._moving = False
         self._move_start_time = None
         self._last_icon_update = None
@@ -38,11 +38,23 @@ class MovableEntity(pygame.sprite.Sprite, ABC):
         self._last_icon_update = None
         self._target_cell = None
 
-    @abstractmethod
     def _move(self):
+        speed = self._get_speed()
+
+        if self._moving:
+            self._animated_movement(speed)
+        else:
+            self._prepare_move(speed)
+
+    @abstractmethod
+    def _get_speed(self):
         pass
 
-    def _slow_movement(self, speed):
+    @abstractmethod
+    def _prepare_move(self, speed):
+        pass
+
+    def _animated_movement(self, speed):
         time_elapsed = self._time_elapsed_since_move_start()
         if time_elapsed <= speed:
             position = self._get_transition_position(time_elapsed, speed)
@@ -54,11 +66,24 @@ class MovableEntity(pygame.sprite.Sprite, ABC):
             self._target_cell = None
             self._moving = False
 
+    # calculates speed from default speed
+    def _get_speed_by_percent(self, percent):
+        if percent <= 0:
+            return 0
+
+        inverse_percent = 100 - percent
+        delay = inverse_percent / 100 * self.DEFAULT_SPEED
+
+        return self.DEFAULT_SPEED + delay
+
     def _update_position(self, position):
         self.rect = self.image.get_rect(center=position)
 
     def _get_transition_position(self, time_elapsed, speed):
-        progress = min(round(time_elapsed / speed * 100), 100)
+        if speed > 0:
+            progress = min(round(time_elapsed / speed * 100), 100)
+        else:
+            progress = 0
         distance = self._get_distance_covered(progress)
         cell_type = CellMap.get_instance().get_cell_type(self.cell)
 
